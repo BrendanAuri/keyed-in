@@ -71,7 +71,7 @@ src/
     screens/     # Start, Home, LevelSelect, Round, Result, Review, Drill, Daily, Explore, ScaleFinder, ScaleGuide, Stats
 ```
 
-Built so far: `constants.ts`, `storage/`, `ui/components/UpdatePrompt.tsx` and `ui/screens/Home.tsx` (Milestone 0), and `theory/` (Milestone 1, §5).
+Built so far: `constants.ts`, `storage/`, `ui/components/UpdatePrompt.tsx` and `ui/screens/Home.tsx` (Milestone 0); `theory/` (Milestone 1, §5); `audio/`, `game/settings.ts`, the router, the Keyboard, Segmented and NotePicker components, and the Start and Explore screens (Milestone 2, §6, §7, §13).
 
 Rules, in the same spirit as Dial In:
 - `theory/`, `exercises/` and `srs/` never import React or touch the DOM.
@@ -106,16 +106,26 @@ How it spells and ranks things:
 
 ## 6. Sound (`src/audio/`)
 
-- Dial In's voice engine with a few fixed patches: soft electric piano, organ, pluck, pad. No synth knobs in this app.
-- Helpers to play a note, a chord (together, arpeggiated or strummed), a cadence in a key (I–IV–V–I) and a progression at a tempo.
-- Register and voicing are randomised within a level's limits, so players learn the sound of "minor", not of one particular minor chord.
+- **The voice** (`voice.ts`, `modulation.ts`, `output.ts`) is a trimmed copy of Dial In's: two detunable oscillators, a resonant lowpass with its own envelope, an amp envelope, an LFO on cutoff, pitch or level, and a master bus with a safety limiter. Dial In's noise, sub, drive, tempo-synced LFO and live knob changes were left out, because the fixed sounds don't use them; bring them over if Dial In sounds ever play here. Each voice is quieter than Dial In's (`VOICE_GAIN` 0.22 against 0.5), since chords stack five or six of them.
+- **Four fixed sounds** (`patches.ts`), with no knobs: Electric piano (the default), Organ, Pluck and Pad. Each has a level (`amp.level`, which Dial In doesn't have) so they play at about the same loudness: measured offline, their peaks on a C major chord with bass are within 1.5 dB of each other, and nothing clips.
+- **Playing** (`schedule.ts`, pure and tested; `player.ts` turns its events into voices): a chord together, strummed or one note at a time; a scale up, or up and back down; a cadence that sets a key (I–IV–V–I, or i–iv–V–i in minor with harmonic minor's major V); and a progression at a tempo. Cadences and progressions are voiced the way a pianist would play them, each chord as close to the one before as it can be (C, F and G come out as C E G, C F A, B D G), with the root in the bass between E2 and D♯3.
+- **The keyboard** plays through a voice manager from Dial In (polyphony up to 12 voices, with voice stealing).
+- Still to come: register and voicing randomised within a level's limits (Milestone 4), so players learn the sound of "minor", not of one particular minor chord.
 - A Start screen with **Tap to start**, since mobile browsers need a tap before they play audio (as in Dial In).
-- Maybe later: a sampled piano (a freely licensed one such as the Salamander Grand; check the licence and the download size). Beginners may recognise a piano more easily than a synth, so compare the two by ear in Milestone 2. Also Dial In sounds, from a pasted share code.
+- Maybe later (§20): a sampled piano, and Dial In sounds from a pasted share code.
 - Real songs appear by title and chord progression only, played on our own synth. No recordings.
 
 ## 7. Input
 
-- **The on-screen keyboard is the main control.** Phone-first: one to two octaves showing, with octave shift buttons; large keys; multi-touch, so you can play chords; a toggle mode for building answers (tap a key to light it, tap again to clear it, then Check); note-name labels, on by default; and a landscape layout. Check at 320, 375 and 414 px.
+- **The on-screen keyboard is the main control.** Phone-first, and built in Milestone 2:
+  - One octave plus the C on top on phones, two octaves from 640 px wide. It stretches to up to three octaves when a chord or scale needs the room.
+  - Octave − and + buttons (and Z and X on a computer), C1 to C6.
+  - Multi-touch, so you can play chords: each finger plays its own key.
+  - Note names on the white keys, with the octave on each C, on by default and saved. Keys lit up for a chord or scale show their spelled names (E♭, not D♯). Black-key names hide when the keys get too narrow (two or more octaves on a phone), since the picker lists the spelled notes anyway.
+  - Colours: lit keys pale amber, the root full amber, keys being pressed blue.
+  - The computer letter on each key, on devices with a mouse.
+  - Still to come: a toggle mode for building answers (tap a key to light it, tap again to clear it, then Check) in Milestone 4, and a landscape layout.
+  - Check at 320, 375 and 414 px.
 - **Answer buttons** in a large grid, and a **note picker** (letter plus accidental) for spelling.
 - **Computer keys**: a piano row on the letter keys, number keys for answers.
 - Later: **Web MIDI** for a real keyboard (Chrome, Edge and Android Chrome; not iPhone), a fretboard view, staff notation and the microphone.
@@ -217,9 +227,12 @@ Chords come early, at level 3, because building them is the fun part. Key signat
 
 ## 13. Explore
 
-- Play notes (on screen, and later over MIDI) and it names the chord, with every reasonable name.
-- Pick a root and a chord or scale: it lights up on the keyboard and plays. Inversions.
-- A circle of fifths you can tap; a key opens in the Scale Guide.
+Built in Milestone 2 (`ui/screens/Explore.tsx`, with its logic in `ui/explore.ts`):
+
+- **Play anything and it's named**, in a panel above the keyboard: one note ("C♯ / D♭"), an interval ("Major 3rd: C up to E, 4 half steps"), or a chord in words with its symbol, inversion and other names ("C major 6th: C6, also Am7/C"). Once the keys are let go, the panel keeps showing the most notes held at once, faded, so there's time to read it; moving one finger to a new chord shows the new one.
+- **Light up a chord or scale**: Chord or Scale, a root (letter, then ♭, ♮ or ♯), the chord or scale type, and for chords the inversion. The notes light up on the keyboard, starting in its lowest octave, and are listed with their degrees (C 1, E♭ ♭3, G 5). Buttons: Play, Strum and One at a time for chords; Play up, Up and down, and Hear the key (a cadence, for the major and minor scales) for scales. Hide turns the lights off until the picker changes. Space plays it from a computer keyboard.
+- **Sound**: the four fixed sounds, chosen from a menu next to the keyboard and saved.
+- Still to come: a circle of fifths you can tap, opening a key in the Scale Guide (Milestone 3, with the guide), and naming from a MIDI keyboard.
 
 ## 14. Tools
 
@@ -282,16 +295,16 @@ Feel words are written as "often heard as". A chord's feel depends on the key, t
 
 - Portrait-first, dark theme, large touch targets. Dial In's look, with its own accent colour (amber, where Dial In is teal), so the two apps are easy to tell apart.
 - **PWA**, as in Dial In: a manifest (standalone, dark theme, 192, 512 and maskable icons, an Apple touch icon and iOS meta tags), everything precached, a "Keyed In now works offline" notice the first time, and "A new version of Keyed In is ready" with **Reload** / **Later**, so an update never interrupts a round. An install card comes in Milestone 9.
-- **Navigation**: hash routes, so the back button and reloads keep your place (from Milestone 2).
-- **Home**: the modes under **Play** and the tools under **Tools**, as cards, and a card linking to Dial In. From Milestone 5 it also shows where to continue, and later today's daily and how many reviews are due.
-
-Milestone 0's Home shows the four modes and three tools as "Coming soon", and the Dial In card.
+- **Navigation**: Tap to start first (§6), then tabs for Home and Explore, with more as screens arrive. Screens are hash routes (`#/`, `#/explore`), so the back button and reloads keep your place.
+- **Home**: the modes under **Play** and the tools under **Tools**, as cards, and a card linking to Dial In. Cards that work are outlined in amber and marked "Open" (Explore, from Milestone 2); the rest say "Coming soon". From Milestone 5 it also shows where to continue, and later today's daily and how many reviews are due.
 
 ## 16. Persistence
 
 All storage goes through `storage/storage.ts`, and every key starts with `keyedin.` (build them with `storageKey()` in `storage/keys.ts`). Both apps live on the `brendanauri.github.io` origin, so they share localStorage, and Dial In's keys start with `dialin.`. Service workers and their caches are scoped by path (`/dial-in/` and `/keyed-in/`), so the two apps can be installed side by side and both work offline; check this once in Milestone 9.
 
-Planned keys, each versioned with a migration stub: `keyedin.progress` (levels, stars, the run in progress, placement), `keyedin.review` (an FSRS card per item, confusions) and `keyedin.settings` (note names, A4 reference, sound). Ask for persistent storage on the first save.
+Keys, each versioned:
+- `keyedin.settings` (Milestone 2, `game/settings.ts`): note names on or off, and the sound. Later the A4 reference. Missing or unreadable values fall back to the defaults.
+- Planned: `keyedin.progress` (levels, stars, the run in progress, placement) and `keyedin.review` (an FSRS card per item, confusions), each with a migration stub. Ask for persistent storage on the first progress save.
 
 ## 17. Milestones
 
@@ -301,8 +314,8 @@ Build in order. Each milestone ends with `npm test` and `npm run build` passing,
 | --- | --- | --- |
 | 0 | Set up | Scaffold, SPEC.md, CLAUDE.md, README and handoff; a Home screen that links to Dial In; PWA shell and icons; deploy workflow |
 | 1 | Theory engine | Notes, intervals, chords, scales, keys, numerals and naming, with correct spelling; frequencies and scale matching. Thorough tests, checked against Tonal |
-| 2 | Sound and keyboard | Audio from Dial In, playback helpers, the multi-touch phone keyboard, the Start screen and routes, Explore v1. Compare synth and piano sounds |
-| 3 | Tools | Scale Finder and Scale Guide (chords, feel, What next?, progressions), with feel content as data |
+| 2 | Sound and keyboard | Audio from Dial In with four fixed sounds, playback helpers, the multi-touch phone keyboard, the Start screen and routes, Explore v1 |
+| 3 | Tools | Scale Finder and Scale Guide (chords, feel, What next?, progressions), with feel content as data; the circle of fifths in Explore |
 | 4 | Questions | `spell` (with `guide`), `change`, `fix`, `identify`, `hearQuality`, `echo` and `fact`; the question screen; feedback with A-B; a Drill picker |
 | 5 | Packs and Learn | Pack schema and validation, Foundations levels 1–10 with intros, progress, stars, unlocks; the first-launch choice, placement check and Test out |
 | 6 | Review | Item tracking, FSRS, the daily queue, confusions, Stats |
@@ -336,6 +349,7 @@ Build in order. Each milestone ends with `npm test` and `npm run build` passing,
 | Numerals in minor keys and modes | **Counted against the major scale**: a minor key's chords are i, ii°, ♭III, iv, v, ♭VI and ♭VII. One rule for every key, mode and borrowed chord, as in pop and producer theory (textbooks often write VI and VII in minor instead) |
 | Chord symbols | **Spelled out**: Cdim, Caug, Cm7♭5, easier for beginners to read. Roman numerals still use ° and + (vii°, ♭III+) |
 | Octave numbers | **Middle C is C4** (scientific pitch), as in Dial In and most analysers and tuners. A setting for DAW numbering can come later (§20) |
+| Sound | **Dial In's synth with four fixed sounds, for now**: small, and offline from the start. A sampled piano can come later (§20) |
 | Tools | **Scale Finder** and **Scale Guide**, linked to each other, in Milestone 3 (§14) |
 | Repo and hosting | github.com/BrendanAuri/keyed-in (public), `main` branch, deployed to brendanauri.github.io/keyed-in/ |
 
@@ -343,8 +357,8 @@ Build in order. Each milestone ends with `npm test` and `npm run build` passing,
 
 Settle each at the milestone that needs it. The first option is the recommendation.
 
-1. **Sound** (Milestone 2): Dial In's synth patches (small, work offline), or a sampled piano. Compare them by ear.
-2. **Tools timing** (Milestone 3): before the question types as planned (useful straight away, and the feel content feeds the Learn intros), or after Learn, if the game should come first.
+1. **Tools timing** (Milestone 3): before the question types as planned (useful straight away, and the feel content feeds the Learn intros), or after Learn, if the game should come first.
+2. **Blues scale spelling** (Milestone 3, when the Scale Guide shows scales): its blue note spelled as a ♭5 by the interval rule, as now and as Tonal does (E♭ blues has B♭♭), or as a ♯4 where that's simpler (A in E♭ blues), as many books write it.
 3. **Ear items in Review** (Milestone 6): FSRS is built for remembering facts. It should still schedule ear skills sensibly, but a rolling accuracy may judge them better. Revisit after testing.
 4. **Streak** (Milestone 8): a day counts when you play the daily *or* clear your reviews, or the daily only.
 5. **Notation** (later): none in v1; Hooktheory, Meludia and Ableton all manage without it. A pack later.
@@ -354,6 +368,7 @@ Settle each at the milestone that needs it. The first option is the recommendati
 
 - **Challenges**: send a friend a drill as a link.
 - **Dial In sounds**: play this app's chords with a Dial In sound, from a pasted share code.
+- **Sampled piano**: beginners may recognise a piano more easily than a synth. The reduced Salamander Grand Piano set at tonejs.github.io/audio/salamander is CC BY 3.0 (credit Alexander Holm); C2 to C7 is 16 MP3s, about 1.2 MB, which the offline cache would hold. Check the licence before adding it.
 - **Drill arcade** (§11).
 - **Scale Finder audio input** (§14.1).
 - **Progression export**: copy as text, or a MIDI file for a DAW (§14.2).

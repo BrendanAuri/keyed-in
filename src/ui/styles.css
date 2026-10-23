@@ -11,6 +11,13 @@
   --accent-strong: #d99a2b;
   --accent-text: #1f1503;
   --danger: #ff7a7a;
+  /* Keys: lit to show a chord or scale (marked), its root, and keys you're pressing. */
+  --key-marked: #f3dca6;
+  --key-marked-black: #9c772f;
+  --key-root: var(--accent);
+  --key-root-black: var(--accent-strong);
+  --key-pressed: #8ab4f8;
+  --key-pressed-black: #4a78c2;
   --radius: 12px;
   --touch: 44px;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -44,7 +51,16 @@ select {
   outline-offset: 2px;
 }
 
-/* ── Buttons ───────────────────────────────────────────────────────────── */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ── Buttons and inputs ────────────────────────────────────────────────── */
 
 .button {
   display: inline-flex;
@@ -65,6 +81,11 @@ select {
   border-color: var(--text-muted);
 }
 
+.button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
 .button.primary {
   border-color: transparent;
   background: var(--accent);
@@ -74,6 +95,85 @@ select {
 
 .button.primary:hover {
   background: var(--accent-strong);
+}
+
+.button.icon {
+  width: var(--touch);
+  padding: 0;
+  font-size: 1.2rem;
+}
+
+.button.toggle[aria-pressed='true'] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.button.quiet {
+  border-color: transparent;
+  background: none;
+  color: var(--text-muted);
+}
+
+.select {
+  min-height: var(--touch);
+  max-width: 100%;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-raised);
+  color: var(--text);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Start screen ──────────────────────────────────────────────────────── */
+
+.start {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 100dvh;
+  padding: 24px 16px;
+  text-align: center;
+}
+
+.start-title {
+  margin: 0;
+  font-size: 2.75rem;
+  letter-spacing: -0.02em;
+}
+
+.start-tagline {
+  margin: 0 0 16px;
+  color: var(--text-muted);
+}
+
+.start-button {
+  min-width: 220px;
+  min-height: 56px;
+  font-size: 1.15rem;
+}
+
+.start-error {
+  color: var(--danger);
+}
+
+.start-tips {
+  max-width: 320px;
+  margin: 24px 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.start-tips li + li {
+  margin-top: 8px;
 }
 
 /* ── App bar ───────────────────────────────────────────────────────────── */
@@ -89,17 +189,60 @@ select {
 }
 
 .app-title {
-  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
   font-size: 1.4rem;
   font-weight: 700;
+  cursor: pointer;
 }
 
-/* ── Home ──────────────────────────────────────────────────────────────── */
+.tabs {
+  display: flex;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.tab {
+  min-height: 38px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 9px;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.tab.current {
+  background: var(--surface-raised);
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ── Screens ───────────────────────────────────────────────────────────── */
 
 .screen {
   max-width: 1100px;
   margin: 0 auto;
   padding: 0 16px calc(24px + env(safe-area-inset-bottom));
+}
+
+.screen-head {
+  padding: 8px 0 4px;
+}
+
+.screen-title {
+  margin: 4px 0;
+  font-size: 1.4rem;
+}
+
+.screen-note {
+  margin: 0 0 12px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
 }
 
 .tagline {
@@ -116,6 +259,8 @@ select {
   text-transform: uppercase;
 }
 
+/* ── Home ──────────────────────────────────────────────────────────────── */
+
 .feature-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -129,10 +274,22 @@ select {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  width: 100%;
+  height: 100%;
   padding: 14px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
+  text-align: left;
+}
+
+.feature-card.ready {
+  border-color: var(--accent);
+  cursor: pointer;
+}
+
+.feature-card.ready:hover {
+  background: var(--surface-raised);
 }
 
 .feature-head {
@@ -160,6 +317,11 @@ select {
   color: var(--text-muted);
   font-size: 0.75rem;
   white-space: nowrap;
+}
+
+.tag.ready {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 /* ── Cards ─────────────────────────────────────────────────────────────── */
@@ -196,6 +358,253 @@ select {
 .sibling-card {
   margin-top: 24px;
   border-color: var(--border);
+}
+
+/* ── Keyboard ──────────────────────────────────────────────────────────── */
+
+.keyboard {
+  position: relative;
+  height: 150px;
+  margin-bottom: 16px;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: none;
+}
+
+.key {
+  position: absolute;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  padding-bottom: 8px;
+  border-radius: 0 0 8px 8px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1.1;
+}
+
+.key.white {
+  bottom: 0;
+  border: 1px solid #0b0d11;
+  background: #e9ebf0;
+  color: #5b6170;
+}
+
+.key.black {
+  z-index: 1;
+  height: 60%;
+  padding-bottom: 6px;
+  border: 1px solid #0b0d11;
+  background: #2a2e38;
+  color: #e8eaf0;
+  font-size: 0.65rem;
+}
+
+.key.white.marked {
+  background: var(--key-marked);
+  color: var(--accent-text);
+}
+
+.key.black.marked {
+  background: var(--key-marked-black);
+}
+
+.key.white.root {
+  background: var(--key-root);
+}
+
+.key.black.root {
+  background: var(--key-root-black);
+  color: var(--accent-text);
+}
+
+.key.white.pressed {
+  background: var(--key-pressed);
+  color: #0b1426;
+}
+
+.key.black.pressed {
+  background: var(--key-pressed-black);
+}
+
+.key-name {
+  font-weight: 600;
+}
+
+.key-hint {
+  opacity: 0.6;
+}
+
+/*
+ * Black keys too narrow for a name: two or more octaves on a phone, three on a
+ * wider screen. The chord or scale's spelled notes still show under the picker.
+ */
+@media (max-width: 639px) {
+  .keyboard:not(.octaves-1) .key.black .key-name {
+    display: none;
+  }
+}
+
+.keyboard.octaves-3 .key.black .key-name {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .keyboard {
+    height: 170px;
+  }
+}
+
+/* ── Explore ───────────────────────────────────────────────────────────── */
+
+.name-panel {
+  min-height: 84px;
+}
+
+.name-title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.name-title.faded {
+  color: var(--text-muted);
+}
+
+.name-detail {
+  margin: 2px 0 0;
+  color: var(--text-muted);
+}
+
+.keyboard-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.octave {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.octave-label {
+  min-width: 2.2em;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.sound-picker {
+  margin-left: auto;
+}
+
+.picker {
+  display: grid;
+  gap: 14px;
+  border-color: var(--border);
+}
+
+.selection {
+  display: grid;
+  gap: 8px;
+}
+
+.selection-name {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.degree-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.degree-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 44px;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-raised);
+}
+
+.degree-note {
+  font-weight: 600;
+}
+
+.degree-number {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.play-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ── Segmented choices and the note picker ─────────────────────────────── */
+
+.segmented-label {
+  margin-bottom: 6px;
+  padding: 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.segmented-options {
+  display: flex;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.segmented-option {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: var(--touch);
+  padding: 0 6px;
+  border: none;
+  background: var(--surface-raised);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.segmented-option + .segmented-option {
+  border-left: 1px solid var(--border);
+}
+
+.segmented-option.selected {
+  background: var(--accent);
+  color: var(--accent-text);
+  font-weight: 600;
+}
+
+.note-picker {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.note-picker-rows {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 3fr);
+  gap: 8px;
 }
 
 /* ── Notices ───────────────────────────────────────────────────────────── */

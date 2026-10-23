@@ -5,7 +5,7 @@
  */
 import {
   A4_MIDI,
-  CENTS_PER_SEMITONE,
+  CENTS_PER_OCTAVE,
   DEFAULT_A4_HZ,
   HARMONIC_TOLERANCE_CENTS,
   MAX_HARMONIC,
@@ -15,8 +15,6 @@ import {
   TUNING_MIN_OFFSET_CENTS,
 } from '../constants';
 import { midi, pitch, pitchFromMidi, type Note, type Pitch, type Spelling } from './notes';
-
-const CENTS_PER_OCTAVE = CENTS_PER_SEMITONE * SEMITONES_PER_OCTAVE;
 
 /** How far apart two frequencies are in cents; positive when `hz` is higher. */
 export function centsBetween(hz: number, referenceHz: number): number {

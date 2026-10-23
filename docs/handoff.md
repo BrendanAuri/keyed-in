@@ -1,11 +1,11 @@
 # Handoff: where Keyed In stands
 
-Last updated 2026-10-24. Milestone 1 is committed locally and not pushed; the live site is still Milestone 0 (Milestone 1 adds no screens, so pushing it changes nothing visible).
+Last updated 2026-10-24. Milestones 1 and 2 are committed locally and not pushed; the live site is still Milestone 0. Pushing would put Explore live.
 
 - **Live site**: https://brendanauri.github.io/keyed-in/ (GitHub Pages, deployed by GitHub Actions on every push to `main`; the first deploy took about 50 seconds)
 - **Repo**: https://github.com/BrendanAuri/keyed-in (public)
 - **Design**: [SPEC.md](../SPEC.md) is the source of truth. §17 lists the milestones, §19 the settled and open decisions, §20 the idea backlog. [plan.md](plan.md) is the original plan, kept for the app survey, research and sources.
-- **Health**: 97 tests pass (94 of them on the theory engine, including the Tonal checks in `src/theory/oracle.test.ts`); `npm run build` is clean.
+- **Health**: 142 tests pass (94 on the theory engine, including the Tonal checks in `src/theory/oracle.test.ts`); `npm run build` is clean.
 
 ## What's built
 
@@ -13,6 +13,7 @@ Last updated 2026-10-24. Milestone 1 is committed locally and not pushed; the li
 | --- | --- |
 | 0 | Scaffold with Dial In's stack and versions; SPEC, CLAUDE.md, README and this handoff; a Home screen listing the four modes and three tools as "Coming soon" with a link to Dial In; PWA shell (manifest, service worker, update prompt, icons drawn by `scripts/make-icons.mjs`); the GitHub Pages workflow; `storageKey()` with the `keyedin.` prefix |
 | 1 | The theory engine in `src/theory/` (SPEC §5): spelled notes and pitches, intervals, 22 chord types, 13 scales and modes, keys and the circle of fifths, Roman numerals, chord naming, frequencies and harmonics, and scale matching for the Scale Finder. Tonal added as a dev dependency and used as the answer key. Three style decisions settled (SPEC §19): numerals against the major scale (♭VI, ♭VII), chord symbols spelled out (Cdim, Cm7♭5), middle C = C4 |
+| 2 | Sound and keyboard (SPEC §6, §7, §13): a trimmed copy of Dial In's voice with four fixed sounds (Electric piano, Organ, Pluck, Pad), each with a level so they match in loudness; playback helpers for chords (together, strum, one at a time), scales, cadences and progressions, voiced like a pianist with the root in the bass; the Start screen, tabs and hash routes; the multi-touch keyboard; saved settings (note names, sound); and Explore, which names whatever you play and lights up and plays any chord or scale. Sound settled as synth only for now (SPEC §19) |
 
 ## Still to do from setup ([setup.md](setup.md))
 
@@ -24,15 +25,17 @@ Steps 1–6 are done: GitHub Pages is on (Source: GitHub Actions), `origin` poin
 
 - Installing it on an Android phone alongside Dial In (both apps installed and working offline is a Milestone 9 check). The live site itself was checked in the browser pane: the bundle matches a local `/keyed-in/` build, the manifest and service worker are scoped to `/keyed-in/`, all five icons load, "Keyed In now works offline" shows on a first visit, and the console is clean.
 - The "new version is ready" prompt: it needs a second deploy over a visited one, so check it after the next push.
-- The theory engine has no screen yet. It's only been checked by tests; Explore (Milestone 2) is the first place to hear and see it.
+- **The sounds, by ear.** Nobody has listened to them yet. They were checked by rendering offline in the browser: nothing clips, every sound fades out after release, and their peaks on a C major chord with bass are within 1.5 dB of each other. Whether they sound good, and whether the electric piano is the right default for beginners, needs ears: tune them in `src/audio/patches.ts`.
+- **Real multi-touch** on a phone. Chords were tested by holding computer keys, and a real pointer press on a key was seen to play and be named; two fingers at once haven't been tried.
+- **Explore on Android**: layout was measured at 320, 375 and 414 px (no sideways overflow), but not used on a real phone.
 
 ## Decisions waiting (SPEC §19)
 
-Each at the milestone that needs it: synth patches or a sampled piano (Milestone 2); whether the tools come before the question types (Milestone 3); FSRS or rolling accuracy for ear items (Milestone 6); what counts towards the streak (Milestone 8); notation and a second instrument view (later).
+Each at the milestone that needs it: whether the tools come before the question types, and how to spell the blues scale's blue note (Milestone 3); FSRS or rolling accuracy for ear items (Milestone 6); what counts towards the streak (Milestone 8); notation and a second instrument view (later).
 
 ## Next
 
-**Milestone 2: sound and keyboard.** Copy Dial In's voice engine with a few fixed patches, playback helpers (note, chord, cadence, progression), the multi-touch phone keyboard, the Start screen and hash routes, and Explore v1, which names whatever you play with `describeNotes`. Settle the sound question first (Dial In's synth or a sampled piano) by comparing them by ear.
+**Milestone 3: the tools.** Scale Finder (notes, names or frequencies in; grouped scales, near matches, frequency table, harmonics check and A4 reference out, using `matchScales` and `frequency.ts`) and Scale Guide (a scale's chords with numerals and feel tags, What next?, progressions to loop with `progressionEvents`), with the feel words as data in `content/feel.ts`; and the circle of fifths in Explore. Settle the two Milestone 3 questions first.
 
 ## How to work on it
 
@@ -64,3 +67,8 @@ From Milestone 1, on using Tonal as the answer key:
 - `Chord.detect` ranks rare types first (E G C comes back as "Em#5" before "CM/E"), so the oracle compares the set of names, not their order. Its minor-major 7th is written "Cm/ma7", with a slash of its own, so only a trailing "/note" counts as a bass.
 - Tonal spells triply augmented and diminished intervals (F♭ up to B♯ is "AAA4"); this engine stops at doubly, and returns null past that.
 - To try Tonal out without a test, a Node script in the scratchpad can load it from the project with `createRequire('<project>/package.json')`.
+
+From Milestone 2:
+- After adding exports to `constants.ts`, the dev server served a stale copy ("does not provide an export named LIMITER_ATTACK") and the page went blank, though `tsc` and the build passed. Restarting the dev server fixed it.
+- With a phone-sized viewport set, the browser pane scales the page to fit, and coordinate clicks (even by element ref) land in the wrong place: a click meant for the root picker played a key instead. Driving the page with JavaScript (`element.click()`, setting a select's value and firing `change`) worked, as in Dial In. Clicking two things in one script runs both before React re-renders, so the second can act on stale state.
+- Sounds can be checked without ears: in the dev server, `await import('/src/audio/voice.ts')` in the page, render into an `OfflineAudioContext` through `createOutputBus`, and measure peak and RMS. That's how the organ was found about 4.5 dB hotter than the rest and given a lower level.
