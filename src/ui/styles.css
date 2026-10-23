@@ -1,0 +1,221 @@
+:root {
+  color-scheme: dark;
+  --bg: #111318;
+  --surface: #1a1d24;
+  --surface-raised: #232731;
+  --border: #2e3340;
+  --text: #e8eaf0;
+  --text-muted: #9aa1b2;
+  /* Amber, where Dial In is teal, so the two apps are easy to tell apart. */
+  --accent: #f2b84b;
+  --accent-strong: #d99a2b;
+  --accent-text: #1f1503;
+  --danger: #ff7a7a;
+  --radius: 12px;
+  --touch: 44px;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.4;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-text-size-adjust: 100%;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--bg);
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ── Buttons ───────────────────────────────────────────────────────────── */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--touch);
+  padding: 0 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-raised);
+  color: var(--text);
+  text-decoration: none;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.button:hover {
+  border-color: var(--text-muted);
+}
+
+.button.primary {
+  border-color: transparent;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-weight: 600;
+}
+
+.button.primary:hover {
+  background: var(--accent-strong);
+}
+
+/* ── App bar ───────────────────────────────────────────────────────────── */
+
+.app-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: calc(12px + env(safe-area-inset-top)) 16px 4px;
+}
+
+.app-title {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+/* ── Home ──────────────────────────────────────────────────────────────── */
+
+.screen {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 16px calc(24px + env(safe-area-inset-bottom));
+}
+
+.tagline {
+  margin: 4px 0 8px;
+  color: var(--text-muted);
+}
+
+.section-title {
+  margin: 20px 0 8px;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.feature-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.feature-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.feature-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.feature-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.feature-description {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.tag {
+  flex: none;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+/* ── Cards ─────────────────────────────────────────────────────────────── */
+
+.card {
+  margin-bottom: 12px;
+  padding: 14px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.card-kicker {
+  margin: 0 0 4px;
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.card-title {
+  margin: 0 0 4px;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.card-note {
+  margin: 0 0 12px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.sibling-card {
+  margin-top: 24px;
+  border-color: var(--border);
+}
+
+/* ── Notices ───────────────────────────────────────────────────────────── */
+
+.app-notice {
+  position: fixed;
+  top: calc(8px + env(safe-area-inset-top));
+  left: 50%;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 12px;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  padding: 10px 14px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--surface-raised);
+  box-shadow: 0 6px 24px rgb(0 0 0 / 40%);
+  transform: translateX(-50%);
+}
