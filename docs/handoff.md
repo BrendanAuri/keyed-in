@@ -1,6 +1,6 @@
 # Handoff: where Keyed In stands
 
-Last updated 2026-10-24. Milestone 4 is committed locally and not pushed; the live site is Milestone 3 (bundle `index-CmDf2COL.js`). Pushing would put Drill and the question types live.
+Last updated 2026-10-24. Milestones 0 to 4 are pushed and live (bundle `index-Dz34ef5w.js`, up about 40 seconds after the push). On the live site, a tab with Milestone 3 cached showed the update prompt and reloaded into Milestone 4; Home's Drill card opened Drill, and a Build it question, its feedback and Next all worked with a clean console.
 
 - **Live site**: https://brendanauri.github.io/keyed-in/ (GitHub Pages, deployed by GitHub Actions on every push to `main`; the first deploy took about 50 seconds)
 - **Repo**: https://github.com/BrendanAuri/keyed-in (public)
