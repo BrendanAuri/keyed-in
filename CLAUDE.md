@@ -45,3 +45,4 @@ npm run icons      # redraw the app icons
 - Git Bash rewrites `/keyed-in/`: use `MSYS_NO_PATHCONV=1` for `KEYED_IN_BASE` builds.
 - Files checked out by git have Windows line endings, so prefer the Edit tool to exact-text scripts on them.
 - Restart the dev server if it serves stale modules after a big refactor.
+- Windows PowerShell 5.1 mangles double quotes inside arguments to programs like git, so write commit messages to a file and use `git commit -F <file>`.
