@@ -1,9 +1,9 @@
 # Handoff: where Keyed In stands
 
-Last updated 2026-10-24. Milestone 0 is committed locally on `main`. Nothing has been pushed, and the repo has no remote yet.
+Last updated 2026-10-24. Milestone 0 is committed, pushed and live.
 
-- **Live site**: not yet. It will be https://brendanauri.github.io/keyed-in/ (GitHub Pages, deployed by GitHub Actions on every push to `main`)
-- **Repo**: https://github.com/BrendanAuri/keyed-in (public, empty until the first push)
+- **Live site**: https://brendanauri.github.io/keyed-in/ (GitHub Pages, deployed by GitHub Actions on every push to `main`; the first deploy took about 50 seconds)
+- **Repo**: https://github.com/BrendanAuri/keyed-in (public)
 - **Design**: [SPEC.md](../SPEC.md) is the source of truth. §17 lists the milestones, §19 the settled and open decisions, §20 the idea backlog. [plan.md](plan.md) is the original plan, kept for the app survey, research and sources.
 - **Health**: 3 tests pass; `npm run build` is clean.
 
@@ -15,14 +15,14 @@ Last updated 2026-10-24. Milestone 0 is committed locally on `main`. Nothing has
 
 ## Still to do from setup ([setup.md](setup.md))
 
-1. **Turn on GitHub Pages**: the repo doesn't have Pages enabled yet. Settings → Pages → Build and deployment → Source: **GitHub Actions**. Without it, the first deploy fails at the Pages steps.
-2. **Connect and push** (step 6): `git remote add origin https://github.com/BrendanAuri/keyed-in.git`, then `git push -u origin main`. Pushing deploys.
-3. **Link back from Dial In** (step 7): once the site is live, add a Keyed In link to Dial In's Home, in a Dial In session.
+Steps 1–6 are done: GitHub Pages is on (Source: GitHub Actions), `origin` points at the GitHub repo, and `main` is pushed.
+
+- **Link back from Dial In** (step 7): add a Keyed In link to Dial In's Home, in a Dial In session.
 
 ## Not checked yet
 
-- The deployed site, and installing it on an Android phone alongside Dial In (both apps installed and working offline is a Milestone 9 check).
-- The "new version is ready" prompt: it needs a second build served over an installed one, so check it after the second deploy. ("Keyed In now works offline" was checked with `npm run preview`: it shows on a first visit and clears after 4 seconds.)
+- Installing it on an Android phone alongside Dial In (both apps installed and working offline is a Milestone 9 check). The live site itself was checked in the browser pane: the bundle matches a local `/keyed-in/` build, the manifest and service worker are scoped to `/keyed-in/`, all five icons load, "Keyed In now works offline" shows on a first visit, and the console is clean.
+- The "new version is ready" prompt: it needs a second deploy over a visited one, so check it after the next push.
 
 ## Decisions waiting (SPEC §19)
 
