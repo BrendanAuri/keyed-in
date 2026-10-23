@@ -24,19 +24,19 @@ Steps 1–6 are done: GitHub Pages is on (Source: GitHub Actions), `origin` poin
 ## Not checked yet
 
 - Installing it on an Android phone alongside Dial In (both apps installed and working offline is a Milestone 9 check). The live site itself was checked in the browser pane: the bundle matches a local `/keyed-in/` build, the manifest and service worker are scoped to `/keyed-in/`, all five icons load, "Keyed In now works offline" shows on a first visit, and the console is clean.
-- **The sounds, by ear.** Nobody has listened to them yet. They were checked by rendering offline in the browser: nothing clips, every sound fades out after release, and their peaks on a C major chord with bass are within 1.5 dB of each other. Whether they sound good, and whether the electric piano is the right default for beginners, needs ears: tune them in `src/audio/patches.ts`.
-- **Real multi-touch** on a phone. Chords were tested by holding computer keys, and a real pointer press on a key was seen to play and be named; two fingers at once haven't been tried.
-- **Explore on Android**: layout was measured at 320, 375 and 414 px (no sideways overflow), but not used on a real phone.
+- iPhone: nothing has been tried on one yet.
+
+Checked by hand on an Android phone after the Milestone 2 deploy: all four sounds are good, multi-touch chords work on the on-screen keyboard, and the keys' labels are readable.
 
 Checked on the live site after the Milestone 2 push: a browser that had Milestone 0 cached showed "A new version of Keyed In is ready" with Reload and Later, and Reload switched it to the new bundle. Then Start, the Explore tab, chord naming and Strum all worked, with a clean console.
 
 ## Decisions waiting (SPEC §19)
 
-Each at the milestone that needs it: whether the tools come before the question types, and how to spell the blues scale's blue note (Milestone 3); FSRS or rolling accuracy for ear items (Milestone 6); what counts towards the streak (Milestone 8); notation and a second instrument view (later).
+Each at the milestone that needs it: FSRS or rolling accuracy for ear items (Milestone 6); what counts towards the streak (Milestone 8); notation and a second instrument view (later). Milestone 3's two questions are settled: the tools come next, and the blues blue note is a ♭5 unless that needs a double flat, then a ♯4.
 
 ## Next
 
-**Milestone 3: the tools.** Scale Finder (notes, names or frequencies in; grouped scales, near matches, frequency table, harmonics check and A4 reference out, using `matchScales` and `frequency.ts`) and Scale Guide (a scale's chords with numerals and feel tags, What next?, progressions to loop with `progressionEvents`), with the feel words as data in `content/feel.ts`; and the circle of fifths in Explore. Settle the two Milestone 3 questions first.
+**Milestone 3: the tools.** Scale Finder (notes, names or frequencies in; grouped scales, near matches, frequency table, harmonics check and A4 reference out, using `matchScales` and `frequency.ts`) and Scale Guide (a scale's chords with numerals and feel tags, What next?, progressions to loop with `progressionEvents`), with the feel words as data in `content/feel.ts`; the circle of fifths in Explore; and the blues spelling rule (SPEC §19) in `scales.ts`, with the Tonal check told to expect it.
 
 ## How to work on it
 

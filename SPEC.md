@@ -349,7 +349,9 @@ Build in order. Each milestone ends with `npm test` and `npm run build` passing,
 | Numerals in minor keys and modes | **Counted against the major scale**: a minor key's chords are i, ii°, ♭III, iv, v, ♭VI and ♭VII. One rule for every key, mode and borrowed chord, as in pop and producer theory (textbooks often write VI and VII in minor instead) |
 | Chord symbols | **Spelled out**: Cdim, Caug, Cm7♭5, easier for beginners to read. Roman numerals still use ° and + (vii°, ♭III+) |
 | Octave numbers | **Middle C is C4** (scientific pitch), as in Dial In and most analysers and tuners. A setting for DAW numbering can come later (§20) |
-| Sound | **Dial In's synth with four fixed sounds, for now**: small, and offline from the start. A sampled piano can come later (§20) |
+| Sound | **Dial In's synth with four fixed sounds, for now**: small, and offline from the start. A sampled piano can come later (§20). All four were checked by ear on an Android phone after Milestone 2 |
+| Tools timing | **Milestone 3, before the question types**: useful straight away, and the Scale Guide's feel words and progressions feed Learn's intros later |
+| Blues scale spelling | **♭5, or ♯4 where ♭5 would need a double flat**: C blues has G♭, E♭ blues has A rather than B♭♭. The same rule covers major blues's ♭3 (G♭ major blues has A rather than B♭♭). To build in Milestone 3, where it also becomes an exception in the Tonal checks |
 | Tools | **Scale Finder** and **Scale Guide**, linked to each other, in Milestone 3 (§14) |
 | Repo and hosting | github.com/BrendanAuri/keyed-in (public), `main` branch, deployed to brendanauri.github.io/keyed-in/ |
 
@@ -357,12 +359,10 @@ Build in order. Each milestone ends with `npm test` and `npm run build` passing,
 
 Settle each at the milestone that needs it. The first option is the recommendation.
 
-1. **Tools timing** (Milestone 3): before the question types as planned (useful straight away, and the feel content feeds the Learn intros), or after Learn, if the game should come first.
-2. **Blues scale spelling** (Milestone 3, when the Scale Guide shows scales): its blue note spelled as a ♭5 by the interval rule, as now and as Tonal does (E♭ blues has B♭♭), or as a ♯4 where that's simpler (A in E♭ blues), as many books write it.
-3. **Ear items in Review** (Milestone 6): FSRS is built for remembering facts. It should still schedule ear skills sensibly, but a rolling accuracy may judge them better. Revisit after testing.
-4. **Streak** (Milestone 8): a day counts when you play the daily *or* clear your reviews, or the daily only.
-5. **Notation** (later): none in v1; Hooktheory, Meludia and Ableton all manage without it. A pack later.
-6. **Second instrument view** (later): a fretboard for guitar and bass, or staff notation first.
+1. **Ear items in Review** (Milestone 6): FSRS is built for remembering facts. It should still schedule ear skills sensibly, but a rolling accuracy may judge them better. Revisit after testing.
+2. **Streak** (Milestone 8): a day counts when you play the daily *or* clear your reviews, or the daily only.
+3. **Notation** (later): none in v1; Hooktheory, Meludia and Ableton all manage without it. A pack later.
+4. **Second instrument view** (later): a fretboard for guitar and bass, or staff notation first.
 
 ## 20. Idea backlog (proposed, not committed)
 
