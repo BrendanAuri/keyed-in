@@ -50,7 +50,9 @@ function keysQuestion(fields: Omit<KeysQuestion, 'recipe' | 'guide' | 'hideNames
 export function generateSpell(spec: QuestionSpec, rng: Rng): KeysQuestion {
   const guide = spec.guide ?? 'none';
   const root = pickRoot(spec, rng);
-  const lit = (t: Target) => (guide === 'none' ? [] : [voiceTarget(t, QUESTION_OCTAVE)[0] ?? 0]);
+  // Full help starts with the root already chosen, so the recipe counts on from it.
+  // With less help, nothing is lit: finding the root is part of the question.
+  const rootChosen = (t: Target) => (guide === 'full' ? voiceTarget(t, QUESTION_OCTAVE).slice(0, 1) : []);
   if (spec.about === 'notes') {
     const target: Target = { kind: 'note', note: root };
     // With no help, names on the keys would give the answer away.
@@ -60,14 +62,14 @@ export function generateSpell(spec: QuestionSpec, rng: Rng): KeysQuestion {
     const scaleTypeId = pick(rng, spec.set);
     const target: Target = { kind: 'scale', root, scaleTypeId };
     return keysQuestion(
-      { type: 'spell', item: `spell:${scaleTypeId}@${rootId(root)}`, prompt: `Tap the notes of ${targetName(target)}.`, target, shown: lit(target), start: [] },
+      { type: 'spell', item: `spell:${scaleTypeId}@${rootId(root)}`, prompt: `Tap the notes of ${targetName(target)}.`, target, shown: [], start: rootChosen(target) },
       guide,
     );
   }
   const chordTypeId = pick(rng, spec.set);
   const target: Target = { kind: 'chord', root, chordTypeId };
   return keysQuestion(
-    { type: 'spell', item: `spell:${chordTypeId}@${rootId(root)}`, prompt: `Tap the notes of ${targetName(target)}.`, target, shown: lit(target), start: [] },
+    { type: 'spell', item: `spell:${chordTypeId}@${rootId(root)}`, prompt: `Tap the notes of ${targetName(target)}.`, target, shown: [], start: rootChosen(target) },
     guide,
   );
 }
@@ -139,16 +141,19 @@ export function generateEcho(spec: QuestionSpec, rng: Rng): KeysQuestion {
   const root = pickRoot(spec, rng);
   const rootKey = midi(pitch(root.letter, root.accidental, QUESTION_OCTAVE));
   if (spec.about === 'intervals') {
-    const interval = pick(rng, spec.set);
+    // An octave's notes share a pitch class, so with the root already chosen it would start out right.
+    const playable = spec.set.filter((i) => semitones(intervalOf(i)) % SEMITONES_PER_OCTAVE !== 0);
+    const interval = pick(rng, playable.length > 0 ? playable : ['P5']);
     const target: Target = { kind: 'interval', root, interval };
     return keysQuestion(
       {
         type: 'echo',
         item: `echo:${interval}`,
-        prompt: `Here's ${formatNote(root)}. Listen, then play both notes you hear.`,
+        prompt: `Here's ${formatNote(root)}, already chosen. Listen, then add the other note you hear.`,
         target,
-        shown: [rootKey],
-        start: [],
+        // The given note starts chosen, like full help's root, rather than lit but not chosen.
+        shown: [],
+        start: [rootKey],
         sound: [rootKey, rootKey + semitones(intervalOf(interval))],
       },
       'none',
@@ -160,10 +165,10 @@ export function generateEcho(spec: QuestionSpec, rng: Rng): KeysQuestion {
     {
       type: 'echo',
       item: `echo:${chordTypeId}`,
-      prompt: `Here's ${formatNote(root)}, the lowest note. Listen, then play the chord you hear.`,
+      prompt: `Here's ${formatNote(root)}, the lowest note, already chosen. Listen, then add the rest of the chord you hear.`,
       target,
-      shown: [rootKey],
-      start: [],
+      shown: [],
+      start: [rootKey],
       sound: voiceTarget(target, QUESTION_OCTAVE),
     },
     'none',

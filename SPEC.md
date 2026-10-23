@@ -151,9 +151,11 @@ Each type is a pure module with `generate(params, rng)`, `check(question, answer
 | `sing` | Name → voice | "Sing the 3rd", then hear it | Self-graded at first; microphone later |
 
 **Help that fades.** Keyboard questions take a `guide` parameter, so a level can start with plenty of help and take it away:
-- `full`: the root is lit and the recipe is shown in plain words ("count 4 keys up, then 3 more"). A wrong key says why.
-- `hint`: the root is given, and a Hint button shows the recipe. Using it rates the answer Hard for review.
+- `full`: the root starts already chosen and the recipe is shown in plain words ("count 4 keys up, then 3 more"). A wrong key says why.
+- `hint`: nothing is chosen or lit, so finding the root is part of the question; a Show a hint button shows the recipe, which names the root ("Start on D"). Using it rates the answer Hard for review.
 - `none`: just the name.
+
+Nothing is ever lit without being chosen: a key that's coloured but not part of the answer you're building was confusing (found on a phone after Milestone 4). What a question gives you (full help's root, echo's starting note, the chord to edit in change and fix) starts chosen, and can be cleared like any other key.
 
 **Feedback teaches**, like Dial In's tips. For example: "You played C, E, G: that's C major. C minor has E♭. The middle note is one key lower, and that's what makes it sound darker." Every miss offers **Yours / Correct / A-B**, so you hear the difference, not just read it.
 
@@ -163,10 +165,12 @@ Each type is a pure module with `generate(params, rng)`, `check(question, answer
 - **A question comes from a spec**: its type, what it's about (notes, chords, intervals, scales or facts), a set (which chord types, intervals, scales or facts), optional roots, and the help level. Pack levels (Milestone 5) and the Drill picker both write specs. `catalogue.ts` says which subjects each type takes and what can go in a set.
 - **Keyboard answers are checked by pitch class**: any octave, any order, doubled notes allowed. Some right notes and no wrong ones is partly right ("Nearly."). Change and fix questions start from a chord to edit; Start again puts it back.
 - **Roots** are the twelve usual spellings (C, D♭, D, E♭, E, F, F♯, G, A♭, A, B♭, B) unless a spec gives others. Ear questions put their root anywhere from F3 to F4, so the sound of "minor" is learned rather than one minor chord. Choices are up to four, shuffled; a set with only one chord type gets a contrasting one added (minor for major, and so on).
-- **Help**: `full` lights and names the root, shows the recipe, and says why a wrong key is wrong ("G♭ isn't in E♭ major", then the recipe). `hint` puts the recipe behind Show a hint. Recipes count keys ("Start on D. Count up 3 keys to the next note, then 4 more"); change questions say which note moves ("Move G♯ down 1 key, to G"); single notes say where the key is ("D♭ is the black key just left of D").
+- **Help**: `full` starts with the root chosen, shows the recipe, and says why a wrong key is wrong ("G♭ isn't in E♭ major", then the recipe; a wrong black key is spelled with sharps in a sharp key and flats otherwise). `hint` puts the recipe behind Show a hint and lights nothing. Recipes count keys ("Start on D. Count up 3 keys to the next note, then 4 more"); change questions say which note moves ("Move G♯ down 1 key, to G"); single notes say where the key is ("D♭ is the black key just left of D").
 - **Names on the keys** are hidden when they'd give the answer away: finding a single note with no help, and naming a lit note. Otherwise lit keys show their spelled names.
 - **Feedback** names what you played and what was asked, lists what's missing and what's extra, and for a chord mistaken for another on the same root, says which note differs and what that does: "E♭ major's 3rd is G, 1 key higher than E♭ minor's G♭. A higher 3rd makes a chord major and brighter." Facts explain themselves ("E♭ major has 3 flats: B♭, E♭ and A♭"). After a miss: Yours, Correct and A-B (yours, then the right one); after a right answer, Hear it.
 - **On a computer**: A to K play the keyboard (toggling notes in a keyboard question), 1 to 4 pick an answer, and Enter checks or moves on.
+- **The keyboard never moves during a question.** Above it is only what stays put (the prompt, and Play again for ear questions); the Check, Clear and Show a hint buttons, the hint or recipe, wrong-key tips and the feedback all appear below it.
+- **Echo** gives its starting note already chosen ("Here's C, already chosen. Listen, then add the other note you hear.") and never asks for an octave, which the chosen note alone would answer.
 - **Grading** is `grading.ts`'s `rate`; full help counts as a hint, so a right answer with it is Hard. Nothing stores the rating yet; Review (Milestone 6) will.
 - **Items** for review are named like `spell:minor@F#`, `change:major>minor@C`, `echo:minor` and `hearQuality:minor` (ear items per concept, the root random each time).
 - A test makes 300 questions of every type and subject with every item in its set, and checks each one accepts its own right answer, and that change and fix questions don't start out already right.

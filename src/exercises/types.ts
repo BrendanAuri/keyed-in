@@ -42,9 +42,12 @@ export interface KeysQuestion {
   readonly item: string;
   readonly prompt: string;
   readonly target: Target;
-  /** Keys lit as part of the question, MIDI: the root when the guide gives it. */
+  /** Keys lit as part of the question, MIDI. Keyboard questions light nothing: what's given starts chosen instead. */
   readonly shown: readonly number[];
-  /** Keys already chosen at the start: change and fix start from a chord to edit. */
+  /**
+   * Keys already chosen at the start: the root with full help, the given note
+   * in echo, and the chord to edit in change and fix.
+   */
   readonly start: readonly number[];
   readonly guide: Guide;
   /** The recipe in plain words: shown at once (full help), behind Hint, or null. */

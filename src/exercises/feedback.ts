@@ -56,7 +56,8 @@ export function differenceLines(root: Note, fromTypeId: string, toTypeId: string
 
 /**
  * Spell keys (MIDI) for talking about them: as the right answer spells them
- * where they're in it, otherwise as the chord they make, otherwise with flats.
+ * where they're in it, otherwise as the chord they make, otherwise with sharps
+ * when the answer has sharps (D♯ near F♯ major) and flats when it doesn't.
  */
 export function spellKeys(midis: readonly number[], answerNotes: readonly Note[]): Note[] {
   const pcs = [...new Set(midis.map((m) => mod(m, SEMITONES_PER_OCTAVE)))];
@@ -64,9 +65,10 @@ export function spellKeys(midis: readonly number[], answerNotes: readonly Note[]
   const ordered = pcs.sort((a, b) => mod(a - lowest, SEMITONES_PER_OCTAVE) - mod(b - lowest, SEMITONES_PER_OCTAVE));
   const named = nameChord(midis)[0];
   const chordNotes = named ? buildChord(named.root, named.chordTypeId) : [];
+  const spelling = answerNotes.some((n) => n.accidental > 0) ? 'sharp' : 'flat';
   return ordered.map(
     (pc) =>
-      answerNotes.find((n) => pitchClass(n) === pc) ?? chordNotes.find((n) => pitchClass(n) === pc) ?? noteFromPitchClass(pc, 'flat'),
+      answerNotes.find((n) => pitchClass(n) === pc) ?? chordNotes.find((n) => pitchClass(n) === pc) ?? noteFromPitchClass(pc, spelling),
   );
 }
 

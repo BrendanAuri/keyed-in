@@ -127,27 +127,18 @@ export function QuestionView({ question: q, instrument, showNames, showKeyHints,
   const style = keysStyle(q);
   const yourKeys = answered?.answer.kind === 'keys' ? new Set(answered.answer.midis) : selected;
 
+  // Above the keyboard, only what stays put for the whole question, so the keyboard never
+  // moves while it's being played. Hints, tips and feedback come and go below it.
   return (
     <>
       <section className="card question" aria-live="polite">
         <p className="question-prompt">{q.prompt}</p>
-        {keysQ?.recipe && (keysQ.guide === 'full' || hintShown) && <p className="question-recipe">{keysQ.recipe}</p>}
-        <div className="play-row">
-          {hasSound && (
+        {hasSound && (
+          <div className="play-row">
             <button type="button" className="button" onClick={playQuestion}>
               Play again
             </button>
-          )}
-          {keysQ?.guide === 'hint' && !hintShown && !answered && (
-            <button type="button" className="button" onClick={() => setHintShown(true)}>
-              Show a hint
-            </button>
-          )}
-        </div>
-        {tip && (
-          <p className="question-tip" role="status">
-            {tip}
-          </p>
+          </div>
         )}
       </section>
 
@@ -181,7 +172,23 @@ export function QuestionView({ question: q, instrument, showNames, showKeyHints,
           >
             {keysQ.start.length > 0 ? 'Start again' : 'Clear'}
           </button>
+          {keysQ.guide === 'hint' && !hintShown && (
+            <button type="button" className="button" onClick={() => setHintShown(true)}>
+              Show a hint
+            </button>
+          )}
         </div>
+      )}
+
+      {keysQ && !answered && ((keysQ.recipe && (keysQ.guide === 'full' || hintShown)) || tip) && (
+        <section className="card question-help" aria-live="polite">
+          {keysQ.recipe && (keysQ.guide === 'full' || hintShown) && <p className="question-recipe">{keysQ.recipe}</p>}
+          {tip && (
+            <p className="question-tip" role="status">
+              {tip}
+            </p>
+          )}
+        </section>
       )}
 
       {choiceQ && (

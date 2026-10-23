@@ -56,7 +56,8 @@ export function setOptions(type: ExerciseType, about: About): SetOption[] {
       return CHORD_TYPES.filter((t) => !usable || usable.has(t.id)).map((t) => ({ id: t.id, name: t.name }));
     }
     case 'intervals':
-      return INTERVALS.map((id) => ({ id, name: intervalName(intervalOf(id)) }));
+      // Playing an octave back can't be told from playing the one note, since answers go by pitch class.
+      return INTERVALS.filter((id) => type !== 'echo' || id !== 'P8').map((id) => ({ id, name: intervalName(intervalOf(id)) }));
     case 'scales':
       return SCALE_TYPES.map((t) => ({ id: t.id, name: t.name }));
     case 'facts':
@@ -72,7 +73,7 @@ export function defaultSet(about: About): string[] {
     case 'chords':
       return ['major', 'minor'];
     case 'intervals':
-      return ['M3', 'P5', 'P8'];
+      return ['M3', 'P5'];
     case 'scales':
       return ['major', 'naturalMinor'];
     case 'facts':

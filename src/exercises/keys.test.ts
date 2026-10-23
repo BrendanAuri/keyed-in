@@ -18,14 +18,17 @@ describe('spell', () => {
     expect(generateSpell(spec({}), createRng(1))).toEqual(q);
   });
 
-  it('gives the root and the recipe with full help, the recipe alone behind Hint, and nothing without help', () => {
+  it('starts full help with the root chosen and the recipe; less help lights nothing', () => {
     const full = generateSpell(spec({ guide: 'full' }), createRng(1));
-    expect(names(full.shown)).toBe('C4');
+    expect(names(full.start)).toBe('C4');
+    expect(full.shown).toEqual([]);
     expect(full.recipe).toContain('Count up 3 keys');
     const hint = generateSpell(spec({ guide: 'hint' }), createRng(1));
+    expect(hint.start).toEqual([]);
+    expect(hint.shown).toEqual([]);
     expect(hint.recipe).not.toBeNull();
     const none = generateSpell(spec({ guide: 'none' }), createRng(1));
-    expect(none.shown).toEqual([]);
+    expect(none.start).toEqual([]);
     expect(none.recipe).toBeNull();
   });
 
@@ -93,6 +96,13 @@ describe('feedback for keys', () => {
     expect(wrongKeyTip(full, midi(p('Eb4')))).toBeNull();
     expect(wrongKeyTip(q, midi(p('E4')))).toBeNull();
   });
+
+  it('spells a wrong black key the way the key leans: sharps near F♯ major, flats near C minor', () => {
+    const sharpKey = generateSpell(spec({ set: ['major'], roots: ['F#'], guide: 'full' }), createRng(1));
+    expect(wrongKeyTip(sharpKey, midi(p('D#4')))).toMatch(/^D♯ isn't in F♯ major/);
+    const flatKey = generateSpell(spec({ guide: 'full' }), createRng(1));
+    expect(wrongKeyTip(flatKey, midi(p('C#4')))).toMatch(/^D♭ isn't in C minor/);
+  });
 });
 
 describe('change, fix and echo', () => {
@@ -119,14 +129,25 @@ describe('change, fix and echo', () => {
     }
   });
 
-  it('plays back a chord or interval with the root lit', () => {
+  it('plays back a chord or interval with the given note already chosen', () => {
     const chord = generateEcho(spec({ type: 'echo', set: ['minor'] }), createRng(5));
-    expect(names(chord.shown)).toBe('C4');
+    expect(names(chord.start)).toBe('C4');
+    expect(chord.shown).toEqual([]);
+    expect(chord.prompt).toBe("Here's C, the lowest note, already chosen. Listen, then add the rest of the chord you hear.");
     expect(names(chord.sound ?? [])).toBe('C4 E♭4 G4');
     expect(chord.item).toBe('echo:minor');
     const interval: KeysQuestion = generateEcho(spec({ type: 'echo', about: 'intervals', set: ['P5'] }), createRng(5));
     expect(names(interval.sound ?? [])).toBe('C4 G4');
     expect(checkKeys(interval, keys('C3', 'G3')).correct).toBe(true);
+    expect(checkKeys(interval, interval.start).correct).toBe(false);
     expect(pitchClass(n('C'))).toBe(0);
+  });
+
+  it("never plays back an octave, which the chosen root alone would answer", () => {
+    for (let seed = 0; seed < 20; seed++) {
+      const q = generateEcho(spec({ type: 'echo', about: 'intervals', set: ['P8', 'M3'] }), createRng(seed));
+      expect(q.item).toBe('echo:M3');
+    }
+    expect(generateEcho(spec({ type: 'echo', about: 'intervals', set: ['P8'] }), createRng(1)).item).toBe('echo:P5');
   });
 });

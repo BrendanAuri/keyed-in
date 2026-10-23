@@ -1015,6 +1015,16 @@ select {
   font-weight: 700;
 }
 
+.question-help {
+  display: grid;
+  gap: 8px;
+  border-color: var(--border);
+}
+
+.question-help > p {
+  margin: 0;
+}
+
 .question-recipe {
   color: var(--text-muted);
 }
@@ -1024,10 +1034,6 @@ select {
   border: 1px solid #b8860b;
   border-radius: var(--radius);
   background: rgb(255 209 102 / 8%);
-}
-
-.question .play-row:empty {
-  display: none;
 }
 
 .question-actions {

@@ -23,7 +23,11 @@ describe('every question', () => {
         const result = checkAnswer(q, answer);
         expect(result.correct, label).toBe(true);
         expect(feedbackFor(q, answer, result).headline, label).toBe("Yes, that's it.");
-        if (isKeysQuestion(q) && q.start.length > 0) expect(checkAnswer(q, { kind: 'keys', midis: q.start }).correct, label).toBe(false);
+        if (isKeysQuestion(q)) {
+          // What's chosen at the start (a root, a given note, a chord to edit) must never already be the answer.
+          if (q.start.length > 0) expect(checkAnswer(q, { kind: 'keys', midis: q.start }).correct, label).toBe(false);
+          expect(q.shown, label).toEqual([]);
+        }
         if (!isKeysQuestion(q)) {
           expect(new Set(q.choices).size, label).toBe(q.choices.length);
           expect(q.choices.length, label).toBeGreaterThanOrEqual(2);

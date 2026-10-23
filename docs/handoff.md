@@ -1,6 +1,6 @@
 # Handoff: where Keyed In stands
 
-Last updated 2026-10-24. Milestones 0 to 4 are pushed and live (bundle `index-Dz34ef5w.js`, up about 40 seconds after the push). On the live site, a tab with Milestone 3 cached showed the update prompt and reloaded into Milestone 4; Home's Drill card opened Drill, and a Build it question, its feedback and Next all worked with a clean console.
+Last updated 2026-10-24. Two Drill fixes are committed locally and not pushed (the keyboard no longer moves when hints appear; the root starts chosen with full help). Milestones 0 to 4 are pushed and live (bundle `index-Dz34ef5w.js`, up about 40 seconds after the push). On the live site, a tab with Milestone 3 cached showed the update prompt and reloaded into Milestone 4; Home's Drill card opened Drill, and a Build it question, its feedback and Next all worked with a clean console.
 
 - **Live site**: https://brendanauri.github.io/keyed-in/ (GitHub Pages, deployed by GitHub Actions on every push to `main`; the first deploy took about 50 seconds)
 - **Repo**: https://github.com/BrendanAuri/keyed-in (public)
@@ -27,7 +27,7 @@ Steps 1–6 are done: GitHub Pages is on (Source: GitHub Actions), `origin` poin
 
 - Installing it on an Android phone alongside Dial In (both apps installed and working offline is a Milestone 9 check). The live site itself was checked in the browser pane: the bundle matches a local `/keyed-in/` build, the manifest and service worker are scoped to `/keyed-in/`, all five icons load, "Keyed In now works offline" shows on a first visit, and the console is clean.
 - iPhone: nothing has been tried on one yet.
-- **Drill by hand**: every type was driven in the browser pane (by computer keys and button clicks) and measured at 320, 375 and 414 px, but not tapped through on a phone. Worth checking: building chords with real taps in toggle mode, whether the ear questions are too hard or too easy at first, and whether the feedback reads well.
+- **Drill by hand**: tried on a phone after the Milestone 4 deploy, which found two things, both fixed since: hints and tips appearing above the keyboard pushed it down (they're now below it, and its position was measured staying put), and full help's root was lit but not chosen (it now starts chosen; with a hint or no help nothing is lit). Still worth checking: whether the ear questions are too hard or too easy at first, and whether the feedback reads well.
 - **The feel words** in `content/feel.ts` are a first draft. They're hedged as "often heard as", and the songs named are well-known uses of each progression, but they deserve a musician's read.
 
 Checked by hand on an Android phone after the Milestone 2 deploy: all four sounds are good, multi-touch chords work on the on-screen keyboard, and the keys' labels are readable. After the Milestone 3 deploy: the Finder, Guide (loops and What next? pairs) and circle of fifths all play well.

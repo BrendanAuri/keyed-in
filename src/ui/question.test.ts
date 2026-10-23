@@ -7,10 +7,10 @@ import { questionKeyboard } from './question';
 const names = (keys: Iterable<number>) => [...keys].map((m) => formatPitch(pitchFromMidi(m, 'flat'))).join(' ');
 
 describe("the question screen's keyboard", () => {
-  it('lights and names the root with full help, then shows the answer once answered', () => {
+  it('lights nothing before answering, then shows the answer once answered', () => {
     const q = generateQuestion({ type: 'spell', about: 'chords', set: ['minor'], roots: ['C'], guide: 'full' }, createRng(1));
     const before = questionKeyboard(q, false, 1);
-    expect([...before.marked]).toEqual([[60, 'C']]);
+    expect([...before.marked]).toEqual([]);
     expect(before.lowestNote).toBe(60);
     const after = questionKeyboard(q, true, 1);
     expect([...after.marked.values()]).toEqual(['C', 'E♭', 'G']);
