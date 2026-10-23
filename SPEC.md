@@ -72,7 +72,7 @@ src/
     screens/     # Start, Home, LevelSelect, Round, Result, Review, Drill, Daily, Explore, ScaleFinder, ScaleGuide, Stats
 ```
 
-Built so far: `constants.ts`, `storage/`, `ui/components/UpdatePrompt.tsx` and `ui/screens/Home.tsx` (Milestone 0); `theory/` (Milestone 1, §5); `audio/`, `game/settings.ts`, the router, the Keyboard, Segmented and NotePicker components, and the Start and Explore screens (Milestone 2, §6, §7, §13); `content/feel.ts`, `tools/` (pure TypeScript for the two tools, like `theory/`), `ui/instrument.ts`, the CircleOfFifths and KeyboardBar components, and the ScaleFinder and ScaleGuide screens (Milestone 3, §14).
+Built so far: `constants.ts`, `storage/`, `ui/components/UpdatePrompt.tsx` and `ui/screens/Home.tsx` (Milestone 0); `theory/` (Milestone 1, §5); `audio/`, `game/settings.ts`, the router, the Keyboard, Segmented and NotePicker components, and the Start and Explore screens (Milestone 2, §6, §7, §13); `content/feel.ts`, `tools/` (pure TypeScript for the two tools, like `theory/`), `ui/instrument.ts`, the CircleOfFifths and KeyboardBar components, and the ScaleFinder and ScaleGuide screens (Milestone 3, §14); `exercises/`, `game/rng.ts` (from Dial In) and `game/drill.ts`, `ui/question.ts`, the QuestionView component and the Drill screen (Milestone 4, §8, §11).
 
 Rules, in the same spirit as Dial In:
 - `theory/`, `tools/`, `exercises/` and `srs/` never import React or touch the DOM.
@@ -125,7 +125,8 @@ How it spells and ranks things:
   - Note names on the white keys, with the octave on each C, on by default and saved. Keys lit up for a chord or scale show their spelled names (E♭, not D♯). Black-key names hide when the keys get too narrow (two or more octaves on a phone), since the picker lists the spelled notes anyway.
   - Colours: lit keys pale amber, the root full amber, keys being pressed blue.
   - The computer letter on each key, on devices with a mouse.
-  - Still to come: a toggle mode for building answers (tap a key to light it, tap again to clear it, then Check) in Milestone 4, and a landscape layout.
+  - A toggle mode for building answers (Milestone 4): tap a key to choose it (it plays, and turns blue with a ring), tap again to clear it, then Check. After checking, the right answer lights up in amber next to yours.
+  - Still to come: a landscape layout.
   - Check at 320, 375 and 414 px.
 - **Answer buttons** in a large grid, and a **note picker** (letter plus accidental) for spelling.
 - **Computer keys**: a piano row on the letter keys, number keys for answers.
@@ -157,6 +158,18 @@ Each type is a pure module with `generate(params, rng)`, `check(question, answer
 **Feedback teaches**, like Dial In's tips. For example: "You played C, E, G: that's C major. C minor has E♭. The middle note is one key lower, and that's what makes it sound darker." Every miss offers **Yours / Correct / A-B**, so you hear the difference, not just read it.
 
 **Grading.** Right or wrong, plus how long you took, sets the review rating automatically: wrong is Again, right but slow (or with a hint) is Hard, right is Good, right and fast is Easy. Time limits are per type, in `constants.ts`. The clock is never shown in Learn, so beginners aren't rushed; speed only feeds the review schedule. A `spell` answer with two of three notes right shows as partly right, but counts as wrong for scheduling.
+
+**As built (Milestone 4).** `spell`, `change`, `fix`, `echo`, `identify`, `hearQuality` and `fact` are in `src/exercises/`: `keys.ts` for the keyboard answers, `choices.ts` for the buttons, shared shapes in `types.ts`, and one way in through `questions.ts` (`generateQuestion`, `checkAnswer`, `feedbackFor`). `hearDegree`, `hearFunction` and `progression` come in Milestone 7, and `sing` later.
+- **A question comes from a spec**: its type, what it's about (notes, chords, intervals, scales or facts), a set (which chord types, intervals, scales or facts), optional roots, and the help level. Pack levels (Milestone 5) and the Drill picker both write specs. `catalogue.ts` says which subjects each type takes and what can go in a set.
+- **Keyboard answers are checked by pitch class**: any octave, any order, doubled notes allowed. Some right notes and no wrong ones is partly right ("Nearly."). Change and fix questions start from a chord to edit; Start again puts it back.
+- **Roots** are the twelve usual spellings (C, D♭, D, E♭, E, F, F♯, G, A♭, A, B♭, B) unless a spec gives others. Ear questions put their root anywhere from F3 to F4, so the sound of "minor" is learned rather than one minor chord. Choices are up to four, shuffled; a set with only one chord type gets a contrasting one added (minor for major, and so on).
+- **Help**: `full` lights and names the root, shows the recipe, and says why a wrong key is wrong ("G♭ isn't in E♭ major", then the recipe). `hint` puts the recipe behind Show a hint. Recipes count keys ("Start on D. Count up 3 keys to the next note, then 4 more"); change questions say which note moves ("Move G♯ down 1 key, to G"); single notes say where the key is ("D♭ is the black key just left of D").
+- **Names on the keys** are hidden when they'd give the answer away: finding a single note with no help, and naming a lit note. Otherwise lit keys show their spelled names.
+- **Feedback** names what you played and what was asked, lists what's missing and what's extra, and for a chord mistaken for another on the same root, says which note differs and what that does: "E♭ major's 3rd is G, 1 key higher than E♭ minor's G♭. A higher 3rd makes a chord major and brighter." Facts explain themselves ("E♭ major has 3 flats: B♭, E♭ and A♭"). After a miss: Yours, Correct and A-B (yours, then the right one); after a right answer, Hear it.
+- **On a computer**: A to K play the keyboard (toggling notes in a keyboard question), 1 to 4 pick an answer, and Enter checks or moves on.
+- **Grading** is `grading.ts`'s `rate`; full help counts as a hint, so a right answer with it is Hard. Nothing stores the rating yet; Review (Milestone 6) will.
+- **Items** for review are named like `spell:minor@F#`, `change:major>minor@C`, `echo:minor` and `hearQuality:minor` (ear items per concept, the root random each time).
+- A test makes 300 questions of every type and subject with every item in its set, and checks each one accepts its own right answer, and that change and fix questions don't start out already right.
 
 ## 9. Content: packs as data (`src/content/`)
 
@@ -219,6 +232,11 @@ Chords come early, at level 3, because building them is the fun part. Key signat
 
 - Pick from the items you've learned; questions are endless and mixed by default. Narrow by type, concept or pack ("just minor vs diminished").
 - Later, an **arcade** variant: chord names fall and you build each before it lands. Opt-in, and never in Learn: timers stress beginners and reward guessing.
+
+As built (Milestone 4, `ui/screens/Drill.tsx` and `game/drill.ts`), opened from its card on Home (`#/drill`):
+- **The picker**: what to practise (Build it, Name it, Change one note, Fix it, Hear it, Play it back, Facts), what it's about where there's a choice, which ones (chips; major and minor to start), and for keyboard types how much help (Lots of help, A hint, No help). Every type and item is open until Learn exists; then it narrows to what you've learned, with a way to show everything (SPEC §19).
+- **A run** is one question type with one set, endless, with "7 of 9 right" and End drill. One seed makes the whole run, so it can be replayed, and the same item never comes twice in a row when the set has more than one.
+- Not yet: mixing several types in one run, and remembering the last picks.
 
 ## 12. Daily challenge
 
@@ -316,7 +334,7 @@ As built:
 - Portrait-first, dark theme, large touch targets. Dial In's look, with its own accent colour (amber, where Dial In is teal), so the two apps are easy to tell apart.
 - **PWA**, as in Dial In: a manifest (standalone, dark theme, 192, 512 and maskable icons, an Apple touch icon and iOS meta tags), everything precached, a "Keyed In now works offline" notice the first time, and "A new version of Keyed In is ready" with **Reload** / **Later**, so an update never interrupts a round. An install card comes in Milestone 9.
 - **Navigation**: Tap to start first (§6), then tabs for Home, Explore, Finder and Guide, with more as screens arrive. Below 520 px wide the tabs take their own row under the title. Screens are hash routes (`#/`, `#/explore`, `#/finder`, `#/guide/<root>/<scale>`), so the back button and reloads keep your place; changing the scale in the guide replaces the address rather than adding to history.
-- **Home**: the modes under **Play** and the tools under **Tools**, as cards, and a card linking to Dial In. Cards that work are outlined in amber and marked "Open" (Explore from Milestone 2, Scale Finder and Scale Guide from Milestone 3); the rest say "Coming soon". From Milestone 5 it also shows where to continue, and later today's daily and how many reviews are due.
+- **Home**: the modes under **Play** and the tools under **Tools**, as cards, and a card linking to Dial In. Cards that work are outlined in amber and marked "Open" (Explore from Milestone 2, Scale Finder and Scale Guide from Milestone 3, Drill from Milestone 4); the rest say "Coming soon". The game modes open from Home rather than from tabs, so the tabs stay for the tools. From Milestone 5 it also shows where to continue, and later today's daily and how many reviews are due.
 
 ## 16. Persistence
 
@@ -371,6 +389,9 @@ Build in order. Each milestone ends with `npm test` and `npm run build` passing,
 | Octave numbers | **Middle C is C4** (scientific pitch), as in Dial In and most analysers and tuners. A setting for DAW numbering can come later (§20) |
 | Sound | **Dial In's synth with four fixed sounds, for now**: small, and offline from the start. A sampled piano can come later (§20). All four were checked by ear on an Android phone after Milestone 2 |
 | Tools timing | **Milestone 3, before the question types**: useful straight away, and the Scale Guide's feel words and progressions feed Learn's intros later |
+| Answer checking | **By pitch class** (Milestone 4): any octave and any order counts, since keys on a keyboard carry no spelling. Spelling is checked later with the note picker, from the key-signature level on (§9.2) |
+| Drill before Learn | **Everything open** (Milestone 4) until Learn exists; then Drill offers what you've learned, with a way to show everything |
+| Where the modes live | **On Home**, not in the tabs (Milestone 4): the tabs are for the tools, so they stay four at 320 px |
 | Blues scale spelling | **♭5, or ♯4 where ♭5 would need a double flat**: C blues has G♭, E♭ blues has A rather than B♭♭. The same rule covers major blues's ♭3 (G♭ major blues has A rather than B♭♭). Built in Milestone 3 (`scaleSteps` in `scales.ts`), where the degree follows the spelling (E♭ blues shows A as ♯4), and the Tonal check expects it |
 | Tools | **Scale Finder** and **Scale Guide**, linked to each other, in Milestone 3 (§14) |
 | Repo and hosting | github.com/BrendanAuri/keyed-in (public), `main` branch, deployed to brendanauri.github.io/keyed-in/ |

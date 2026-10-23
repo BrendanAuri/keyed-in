@@ -4,6 +4,7 @@
  * the events into voices.
  */
 import {
+  AB_GAP_SECONDS,
   ARPEGGIO_STEP_SECONDS,
   BASS_RANGE,
   CADENCE_BEATS,
@@ -66,6 +67,20 @@ export function chordEvents(midis: readonly number[], style: ChordStyle = 'toget
 export function scaleEvents(midis: readonly number[], direction: 'up' | 'upAndDown' = 'up'): NoteEvent[] {
   const notes = direction === 'up' ? [...midis] : [...midis, ...midis.slice(0, -1).reverse()];
   return stepEvents(notes, SCALE_STEP_SECONDS);
+}
+
+/** Notes played as a chord (all together) or as a scale (one after another). */
+export type KeysStyle = 'chord' | 'scale';
+
+export function keysEvents(midis: readonly number[], style: KeysStyle): NoteEvent[] {
+  return style === 'scale' ? scaleEvents([...midis].sort((a, b) => a - b)) : chordEvents(midis);
+}
+
+/** Your answer, a short gap, then the right one (SPEC §8's A-B), so the difference can be heard. */
+export function abEvents(yours: readonly number[], correct: readonly number[], style: KeysStyle): NoteEvent[] {
+  const first = keysEvents(yours, style);
+  const offset = (first.length > 0 ? eventsEnd(first) : 0) + AB_GAP_SECONDS;
+  return [...first, ...keysEvents(correct, style).map((e) => ({ ...e, at: e.at + offset }))];
 }
 
 /** When the last note of some events has been released. */

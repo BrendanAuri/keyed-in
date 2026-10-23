@@ -11,6 +11,9 @@
   --accent-strong: #d99a2b;
   --accent-text: #1f1503;
   --danger: #ff7a7a;
+  /* Right and wrong answers. */
+  --right: #6fcf97;
+  --wrong: var(--danger);
   /* Keys: lit to show a chord or scale (marked), its root, and keys you're pressing. */
   --key-marked: #f3dca6;
   --key-marked-black: #9c772f;
@@ -486,6 +489,18 @@ select {
 
 .key.black.pressed {
   background: var(--key-pressed-black);
+}
+
+/* An answer being built: blue like a pressed key, with a ring so it shows over a lit one. */
+.key.white.selected {
+  background: var(--key-pressed);
+  color: #0b1426;
+  box-shadow: inset 0 0 0 3px #3b6fd1;
+}
+
+.key.black.selected {
+  background: var(--key-pressed-black);
+  box-shadow: inset 0 0 0 2px #a9c6ff;
 }
 
 .key-name {
@@ -980,6 +995,169 @@ select {
   min-width: 5.5em;
   font-variant-numeric: tabular-nums;
   text-align: center;
+}
+
+/* ── Questions and Drill ───────────────────────────────────────────────── */
+
+.question {
+  display: grid;
+  gap: 10px;
+  border-color: var(--border);
+}
+
+.question > p,
+.feedback > p {
+  margin: 0;
+}
+
+.question-prompt {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.question-recipe {
+  color: var(--text-muted);
+}
+
+.question-tip {
+  padding: 8px 10px;
+  border: 1px solid #b8860b;
+  border-radius: var(--radius);
+  background: rgb(255 209 102 / 8%);
+}
+
+.question .play-row:empty {
+  display: none;
+}
+
+.question-actions {
+  margin-bottom: 12px;
+}
+
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.button.choice {
+  min-height: 56px;
+  padding: 6px 10px;
+  font-size: 1rem;
+  white-space: normal;
+}
+
+.button.choice.right,
+.button.choice.right:disabled {
+  border-color: var(--right);
+  background: rgb(111 207 151 / 16%);
+  opacity: 1;
+}
+
+.button.choice.wrong,
+.button.choice.wrong:disabled {
+  border-color: var(--wrong);
+  background: rgb(255 122 122 / 14%);
+  opacity: 1;
+}
+
+.feedback {
+  display: grid;
+  gap: 6px;
+  border-color: var(--wrong);
+}
+
+.feedback.right {
+  border-color: var(--right);
+}
+
+.feedback-headline {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.feedback .play-row {
+  margin-top: 6px;
+}
+
+.drill-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0 4px;
+}
+
+.drill-bar .screen-note {
+  margin: 0;
+}
+
+.drill-types {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.drill-type {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  height: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-raised);
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.drill-type.selected {
+  border-color: var(--accent);
+}
+
+.drill-type-name {
+  font-weight: 700;
+}
+
+.drill-type-description {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.chip-field {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  min-height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-raised);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.chip.selected {
+  border-color: transparent;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-weight: 600;
 }
 
 /* ── Notices ───────────────────────────────────────────────────────────── */

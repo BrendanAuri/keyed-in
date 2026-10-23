@@ -14,6 +14,8 @@ interface KeyboardProps {
   readonly marked: ReadonlyMap<number, string>;
   /** Lit keys that are the root, drawn stronger. */
   readonly roots: ReadonlySet<number>;
+  /** Keys chosen as an answer, in a question's toggle mode (SPEC §7): tap to choose, tap again to clear. */
+  readonly selected?: ReadonlySet<number>;
   /** Letters on the white keys. Lit keys always show their names. */
   readonly showNames: boolean;
   /** The computer-keyboard letter on each key, where there's a computer keyboard. */
@@ -23,13 +25,17 @@ interface KeyboardProps {
 }
 
 /** On-screen piano (SPEC §7). Multi-touch: each finger plays its own key, so chords work on a phone. */
-export function Keyboard({ lowestNote, octaves, pressed, marked, roots, showNames, showKeyHints, onNoteOn, onNoteOff }: KeyboardProps) {
+export function Keyboard({ lowestNote, octaves, pressed, marked, roots, selected, showNames, showKeyHints, onNoteOn, onNoteOff }: KeyboardProps) {
   const pointers = useRef(new Map<number, number>());
 
   function press(event: PointerEvent<HTMLDivElement>, note: number): void {
     if (event.pointerType === 'mouse' && event.button !== 0) return;
     event.preventDefault();
-    event.currentTarget.setPointerCapture(event.pointerId);
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      // Capture only keeps a finger's note going if it slides off the key; the press still counts.
+    }
     pointers.current.set(event.pointerId, note);
     onNoteOn(note);
   }
@@ -60,6 +66,7 @@ export function Keyboard({ lowestNote, octaves, pressed, marked, roots, showName
           key.black ? 'black' : 'white',
           lit !== undefined ? 'marked' : '',
           roots.has(key.midi) ? 'root' : '',
+          selected?.has(key.midi) ? 'selected' : '',
           pressed.has(key.midi) ? 'pressed' : '',
         ];
         return (

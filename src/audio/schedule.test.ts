@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { ARPEGGIO_STEP_SECONDS, CHORD_SECONDS, LEGATO, SCALE_STEP_SECONDS, STRUM_STEP_SECONDS } from '../constants';
+import { AB_GAP_SECONDS, ARPEGGIO_STEP_SECONDS, CHORD_SECONDS, LEGATO, SCALE_STEP_SECONDS, STRUM_STEP_SECONDS } from '../constants';
 import { chordSymbol } from '../theory/chords';
 import { n } from '../theory/fixtures';
 import { key } from '../theory/keys';
 import { formatPitch, pitchFromMidi } from '../theory/notes';
 import {
+  abEvents,
   bassNote,
   cadenceChords,
   cadenceEvents,
@@ -49,6 +50,21 @@ describe('playing a scale', () => {
     expect(scaleEvents(up).map((e) => e.midi)).toEqual(up);
     expect(scaleEvents(up, 'upAndDown').map((e) => e.midi)).toEqual([60, 62, 64, 65, 64, 62, 60]);
     expect(eventsEnd(scaleEvents(up))).toBeCloseTo(3 * SCALE_STEP_SECONDS + SCALE_STEP_SECONDS * LEGATO, 10);
+  });
+});
+
+describe('A-B', () => {
+  it('plays your answer, a gap, then the right one', () => {
+    const events = abEvents([60, 64, 67], [60, 63, 67], 'chord');
+    expect(events.filter((e) => e.at === 0).map((e) => e.midi)).toEqual([60, 64, 67]);
+    const later = events.filter((e) => e.at > 0);
+    expect(later.map((e) => e.midi)).toEqual([60, 63, 67]);
+    expect(later[0]?.at).toBeCloseTo(CHORD_SECONDS + AB_GAP_SECONDS, 10);
+  });
+
+  it('plays scales one note at a time, and copes with nothing to play first', () => {
+    expect(abEvents([62, 60], [60, 62], 'scale').map((e) => e.midi)).toEqual([60, 62, 60, 62]);
+    expect(abEvents([], [60], 'chord')[0]?.at).toBeCloseTo(AB_GAP_SECONDS, 10);
   });
 });
 

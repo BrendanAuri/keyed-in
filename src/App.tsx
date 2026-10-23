@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { startAudio, type LiveAudio } from './audio/live';
 import { UpdatePrompt } from './ui/components/UpdatePrompt';
 import { useRoute, type Navigate, type Route } from './ui/router';
+import { Drill } from './ui/screens/Drill';
 import { Explore } from './ui/screens/Explore';
 import { Home } from './ui/screens/Home';
 import { ScaleFinder } from './ui/screens/ScaleFinder';
@@ -68,6 +69,8 @@ function Screen({ route, navigate, audio }: { readonly route: Route; readonly na
   switch (route.name) {
     case 'home':
       return <Home navigate={navigate} />;
+    case 'drill':
+      return <Drill audio={audio} />;
     case 'explore':
       return <Explore audio={audio} navigate={navigate} />;
     case 'finder':

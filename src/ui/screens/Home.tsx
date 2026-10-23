@@ -13,7 +13,7 @@ interface Feature {
 const MODES: readonly Feature[] = [
   { title: 'Learn', description: 'Short levels that start from the very beginning: find the notes, then build your first chords.' },
   { title: 'Review', description: "A few minutes a day. What you've learned comes back just before you'd forget it." },
-  { title: 'Drill', description: 'Endless practice on whatever you choose, like just major against minor.' },
+  { title: 'Drill', description: 'Endless practice on whatever you choose, like just major against minor.', route: { name: 'drill' } },
   { title: 'Daily', description: 'The same ten questions for everyone each day, with a streak to keep.' },
 ];
 

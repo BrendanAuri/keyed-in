@@ -94,6 +94,31 @@ export const MOVE_BEATS = 2;
 /** How far ahead the looper schedules the next time round, in seconds. */
 export const LOOP_LOOKAHEAD_SECONDS = 0.5;
 
+// ── Questions (SPEC §8) ──────────────────────────────────────────────────
+
+/** Keyboard questions show and voice their notes from the C in this octave. */
+export const QUESTION_OCTAVE = 4;
+/** Ear questions put their root somewhere in this MIDI range (F3 to F4), so it isn't always the same pitch. */
+export const HEAR_ROOT_RANGE = [53, 65] as const;
+/** The most answer buttons a question shows. */
+export const MAX_CHOICES = 4;
+/**
+ * Seconds under which a right answer counts as fast (Easy) and over which it
+ * counts as slow (Hard), per question type. Never shown in Learn: they only
+ * set the review rating.
+ */
+export const TIME_LIMITS: Readonly<Record<string, { readonly fast: number; readonly slow: number }>> = {
+  spell: { fast: 6, slow: 20 },
+  change: { fast: 4, slow: 15 },
+  fix: { fast: 5, slow: 15 },
+  echo: { fast: 6, slow: 20 },
+  identify: { fast: 3, slow: 10 },
+  hearQuality: { fast: 3, slow: 10 },
+  fact: { fast: 3, slow: 10 },
+};
+/** Gap between your answer and the right one when they're played A-B, in seconds. */
+export const AB_GAP_SECONDS = 0.35;
+
 // ── Keyboard (SPEC §7) ───────────────────────────────────────────────────
 
 /** Octave of the keyboard's lowest C when it first opens on a phone (C4 is middle C); wider screens start one lower. */

@@ -1,6 +1,6 @@
 /**
  * Hash routes, so the browser's back button and reloads keep you where you
- * were: #/ (Home), #/explore, #/finder and #/guide, with a scale in the
+ * were: #/ (Home), #/drill, #/explore, #/finder and #/guide, with a scale in the
  * guide's address (#/guide/Eb/naturalMinor). More screens join as their
  * milestones land.
  */
@@ -10,6 +10,7 @@ export type Route =
   | { readonly name: 'home' }
   | { readonly name: 'explore' }
   | { readonly name: 'finder' }
+  | { readonly name: 'drill' }
   /** `root` is a note in ASCII ("Eb"), `scale` a scale type id. Both or neither. */
   | { readonly name: 'guide'; readonly root?: string; readonly scale?: string };
 
@@ -18,6 +19,7 @@ export function parseRoute(hash: string): Route {
   const [first, second, third] = parts;
   if (first === 'explore') return { name: 'explore' };
   if (first === 'finder') return { name: 'finder' };
+  if (first === 'drill') return { name: 'drill' };
   if (first === 'guide') return second && third ? { name: 'guide', root: second, scale: third } : { name: 'guide' };
   return { name: 'home' };
 }
@@ -39,6 +41,8 @@ export function routeHash(route: Route): string {
       return '#/explore';
     case 'finder':
       return '#/finder';
+    case 'drill':
+      return '#/drill';
     case 'guide':
       return route.root && route.scale ? `#/guide/${e(route.root)}/${e(route.scale)}` : '#/guide';
   }
