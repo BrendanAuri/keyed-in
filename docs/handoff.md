@@ -1,6 +1,6 @@
 # Handoff: where Keyed In stands
 
-Last updated 2026-10-24. Milestones 1 and 2 are committed locally and not pushed; the live site is still Milestone 0. Pushing would put Explore live.
+Last updated 2026-10-24. Milestones 0 to 2 are pushed and live (bundle `index-hgcaN4oT.js`, up about 50 seconds after the push).
 
 - **Live site**: https://brendanauri.github.io/keyed-in/ (GitHub Pages, deployed by GitHub Actions on every push to `main`; the first deploy took about 50 seconds)
 - **Repo**: https://github.com/BrendanAuri/keyed-in (public)
@@ -24,10 +24,11 @@ Steps 1–6 are done: GitHub Pages is on (Source: GitHub Actions), `origin` poin
 ## Not checked yet
 
 - Installing it on an Android phone alongside Dial In (both apps installed and working offline is a Milestone 9 check). The live site itself was checked in the browser pane: the bundle matches a local `/keyed-in/` build, the manifest and service worker are scoped to `/keyed-in/`, all five icons load, "Keyed In now works offline" shows on a first visit, and the console is clean.
-- The "new version is ready" prompt: it needs a second deploy over a visited one, so check it after the next push.
 - **The sounds, by ear.** Nobody has listened to them yet. They were checked by rendering offline in the browser: nothing clips, every sound fades out after release, and their peaks on a C major chord with bass are within 1.5 dB of each other. Whether they sound good, and whether the electric piano is the right default for beginners, needs ears: tune them in `src/audio/patches.ts`.
 - **Real multi-touch** on a phone. Chords were tested by holding computer keys, and a real pointer press on a key was seen to play and be named; two fingers at once haven't been tried.
 - **Explore on Android**: layout was measured at 320, 375 and 414 px (no sideways overflow), but not used on a real phone.
+
+Checked on the live site after the Milestone 2 push: a browser that had Milestone 0 cached showed "A new version of Keyed In is ready" with Reload and Later, and Reload switched it to the new bundle. Then Start, the Explore tab, chord naming and Strum all worked, with a clean console.
 
 ## Decisions waiting (SPEC §19)
 
