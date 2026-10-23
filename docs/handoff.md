@@ -1,6 +1,6 @@
 # Handoff: where Keyed In stands
 
-Last updated 2026-10-24. Two Drill fixes are committed locally and not pushed (the keyboard no longer moves when hints appear; the root starts chosen with full help). Milestones 0 to 4 are pushed and live (bundle `index-Dz34ef5w.js`, up about 40 seconds after the push). On the live site, a tab with Milestone 3 cached showed the update prompt and reloaded into Milestone 4; Home's Drill card opened Drill, and a Build it question, its feedback and Next all worked with a clean console.
+Last updated 2026-10-24. Milestones 0 to 4 and the two Drill fixes are pushed and live (bundle `index-CqpFbcG6.js`, up about 40 seconds after the push). On the live site the keyboard stayed put through a tip, the feedback and a hint, full help started with the root chosen and nothing lit, and a hint lit nothing. On the live site, a tab with Milestone 3 cached showed the update prompt and reloaded into Milestone 4; Home's Drill card opened Drill, and a Build it question, its feedback and Next all worked with a clean console.
 
 - **Live site**: https://brendanauri.github.io/keyed-in/ (GitHub Pages, deployed by GitHub Actions on every push to `main`; the first deploy took about 50 seconds)
 - **Repo**: https://github.com/BrendanAuri/keyed-in (public)
