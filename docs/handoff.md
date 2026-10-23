@@ -1,6 +1,6 @@
 # Handoff: where Keyed In stands
 
-Last updated 2026-10-24. Milestone 3 is committed locally and not pushed; the live site is Milestone 2 (bundle `index-hgcaN4oT.js`). Pushing would put the Scale Finder, Scale Guide and circle of fifths live.
+Last updated 2026-10-24. Milestones 0 to 3 are pushed and live (bundle `index-CmDf2COL.js`, up about 40 seconds after the push). On the live site, a tab with Milestone 2 cached reloaded into Milestone 3 through the update prompt, and the Finder, Guide (with a loop) and circle of fifths all worked with a clean console.
 
 - **Live site**: https://brendanauri.github.io/keyed-in/ (GitHub Pages, deployed by GitHub Actions on every push to `main`; the first deploy took about 50 seconds)
 - **Repo**: https://github.com/BrendanAuri/keyed-in (public)
