@@ -173,6 +173,13 @@ export function formatNote(n: Note, style: NoteStyle = 'unicode'): string {
   return `${n.letter}${accidentalText(n.accidental, style)}`;
 }
 
+/** A pitch class by both its names where it has two: "C♯ / D♭", or just "C". */
+export function bothSpellings(pc: number): string {
+  const sharp = formatNote(noteFromPitchClass(pc, 'sharp'));
+  const flat = formatNote(noteFromPitchClass(pc, 'flat'));
+  return sharp === flat ? sharp : `${sharp} / ${flat}`;
+}
+
 /** "E♭4", or "Eb4" in ASCII. */
 export function formatPitch(p: Pitch, style: NoteStyle = 'unicode'): string {
   return `${formatNote(p, style)}${p.octave}`;

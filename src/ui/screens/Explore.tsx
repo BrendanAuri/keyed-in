@@ -1,29 +1,23 @@
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { LiveAudio } from '../../audio/live';
-import { SOUNDS, soundOf } from '../../audio/patches';
-import { Player } from '../../audio/player';
-import { buildVoice } from '../../audio/voice';
-import { VoiceManager } from '../../audio/voiceManager';
+import { soundOf } from '../../audio/patches';
 import { cadenceEvents, chordEvents, scaleEvents, type ChordStyle } from '../../audio/schedule';
-import {
-  DEFAULT_KEYBOARD_OCTAVE,
-  KEYBOARD_MAX_OCTAVES,
-  KEYBOARD_OCTAVE_RANGE,
-  KEYBOARD_TWO_OCTAVE_MIN_WIDTH,
-  LIVE_START_DELAY,
-  MAX_VOICES,
-} from '../../constants';
+import { KEYBOARD_MAX_OCTAVES } from '../../constants';
 import { CHORD_TYPES, chordName, chordTypeOf, inversionName } from '../../theory/chords';
 import { key } from '../../theory/keys';
 import { formatNote, midi, note, sameNote, type Note } from '../../theory/notes';
 import { SCALE_TYPES, scaleName } from '../../theory/scales';
+import { CircleOfFifths } from '../components/CircleOfFifths';
 import { Keyboard } from '../components/Keyboard';
+import { KeyboardBar } from '../components/KeyboardBar';
 import { NotePicker } from '../components/NotePicker';
 import { Segmented } from '../components/Segmented';
 import { describePlayed, scaleKeyMode, selectionDegrees, selectionPitches, type Selection } from '../explore';
-import { isButtonLike, isTypingTarget, useMediaQuery, useSettings } from '../hooks';
+import { useMediaQuery, useSettings } from '../hooks';
+import { TWO_OCTAVES, startingOctave, useComputerKeys, useInstrument } from '../instrument';
 import { cAtOrBelow, octavesToShow } from '../keyboardLayout';
-import { OCTAVE_DOWN_KEY, OCTAVE_UP_KEY, lowestNoteForOctave, noteForKey } from '../keyboardMap';
+import { lowestNoteForOctave } from '../keyboardMap';
+import type { Navigate } from '../router';
 
 type Kind = Selection['kind'];
 
@@ -38,24 +32,18 @@ const CHORD_STYLES: readonly { readonly style: ChordStyle; readonly label: strin
   { style: 'arpeggio', label: 'One at a time' },
 ];
 
-const TWO_OCTAVES = `(min-width: ${KEYBOARD_TWO_OCTAVE_MIN_WIDTH}px)`;
-
-function clampOctave(octave: number): number {
-  const [low, high] = KEYBOARD_OCTAVE_RANGE;
-  return Math.min(high, Math.max(low, octave));
-}
-
 /**
- * Explore (SPEC §13): a keyboard that names whatever you play, and a picker
- * that lights up any chord or scale and plays it. No scores.
+ * Explore (SPEC §13): a keyboard that names whatever you play, a picker that
+ * lights up any chord or scale and plays it, and the circle of fifths. No scores.
  */
-export function Explore({ audio }: { readonly audio: LiveAudio }) {
+export function Explore({ audio, navigate }: { readonly audio: LiveAudio; readonly navigate: Navigate }) {
   const [settings, updateSettings] = useSettings();
   const sound = soundOf(settings.soundId);
   const wide = useMediaQuery(TWO_OCTAVES);
   const canHover = useMediaQuery('(hover: hover) and (pointer: fine)');
-  const [octave, setOctave] = useState(() => DEFAULT_KEYBOARD_OCTAVE - (window.matchMedia(TWO_OCTAVES).matches ? 1 : 0));
-  const [pressed, setPressed] = useState<ReadonlySet<number>>(() => new Set());
+  const [octave, setOctave] = useState(startingOctave);
+  const instrument = useInstrument(audio, sound.patch);
+  const { held, pressed, noteOn, noteOff, play } = instrument;
 
   const [kind, setKind] = useState<Kind>('chord');
   const [root, setRoot] = useState<Note>(() => note('C'));
@@ -63,19 +51,6 @@ export function Explore({ audio }: { readonly audio: LiveAudio }) {
   const [scaleTypeId, setScaleTypeId] = useState('major');
   const [inversion, setInversion] = useState(0);
   const [lit, setLit] = useState(true);
-
-  const [manager] = useState(() => new VoiceManager((patch, n, time) => buildVoice(audio.ctx, patch, n, time, audio.output), sound.patch, MAX_VOICES));
-  const [player] = useState(() => new Player(audio));
-  const held = useSyncExternalStore(manager.subscribe, manager.getHeldNotes);
-
-  useEffect(() => manager.setPatch(sound.patch), [manager, sound]);
-  useEffect(
-    () => () => {
-      manager.panic(audio.ctx.currentTime);
-      player.stop();
-    },
-    [manager, player, audio],
-  );
 
   // After the keys are let go, keep naming the most notes held at once, so a
   // chord's name stays up to read. Moving one finger keeps the newer chord.
@@ -94,8 +69,9 @@ export function Explore({ audio }: { readonly audio: LiveAudio }) {
   const selection: Selection =
     kind === 'chord' ? { kind, root, chordTypeId, inversion: Math.min(inversion, chordInversions(chordTypeId) - 1) } : { kind, root, scaleTypeId };
   const pitches = selectionPitches(selection, octave);
+  const midis = pitches.map(midi);
   const lowestNote = lowestNoteForOctave(octave);
-  const highestLit = lit ? Math.max(...pitches.map(midi)) : lowestNote;
+  const highestLit = lit ? Math.max(...midis) : lowestNote;
   const octaves = octavesToShow(cAtOrBelow(lowestNote), highestLit, wide ? 2 : 1, KEYBOARD_MAX_OCTAVES);
   const marked = new Map(lit ? pitches.map((p) => [midi(p), formatNote(p)] as const) : []);
   const roots = new Set(lit ? pitches.filter((p) => sameNote(p, root)).map(midi) : []);
@@ -106,89 +82,17 @@ export function Explore({ audio }: { readonly audio: LiveAudio }) {
     setLit(true);
   }
 
-  const eventTime = useCallback((): number => {
-    if (audio.ctx.state !== 'running') void audio.ctx.resume();
-    return audio.ctx.currentTime + LIVE_START_DELAY;
-  }, [audio]);
-
-  const noteOn = useCallback(
-    (n: number) => {
-      manager.noteOn(n, eventTime());
-      setPressed((keys) => new Set(keys).add(n));
-    },
-    [manager, eventTime],
-  );
-
-  const noteOff = useCallback(
-    (n: number) => {
-      manager.noteOff(n, eventTime());
-      setPressed((keys) => {
-        const next = new Set(keys);
-        next.delete(n);
-        return next;
-      });
-    },
-    [manager, eventTime],
-  );
-
-  const midis = pitches.map(midi);
   const playChord = (style: ChordStyle) => {
     setLit(true);
-    player.play(chordEvents(midis, style), sound.patch);
+    play(chordEvents(midis, style));
   };
   const playScale = (direction: 'up' | 'upAndDown') => {
     setLit(true);
-    player.play(scaleEvents(midis, direction), sound.patch);
+    play(scaleEvents(midis, direction));
   };
   const keyMode = kind === 'scale' ? scaleKeyMode(scaleTypeId) : null;
-  const playDefault = useRef<() => void>(() => undefined);
-  playDefault.current = kind === 'chord' ? () => playChord('together') : () => playScale('up');
 
-  // Computer keyboard: notes, Z and X for octaves, Space to play the chord or scale.
-  const keyNotes = useRef(new Map<string, number>());
-  useEffect(() => {
-    const releaseAll = (): void => {
-      for (const n of keyNotes.current.values()) noteOff(n);
-      keyNotes.current.clear();
-    };
-    function onKeyDown(event: KeyboardEvent): void {
-      if (isTypingTarget(event.target) || event.ctrlKey || event.metaKey || event.altKey) return;
-      if (event.repeat) {
-        if (keyNotes.current.has(event.code)) event.preventDefault();
-        return;
-      }
-      if (event.code === 'Space') {
-        if (isButtonLike(event.target)) return;
-        event.preventDefault();
-        playDefault.current();
-      } else if (event.code === OCTAVE_DOWN_KEY) {
-        setOctave((o) => clampOctave(o - 1));
-      } else if (event.code === OCTAVE_UP_KEY) {
-        setOctave((o) => clampOctave(o + 1));
-      } else {
-        const n = noteForKey(event.code, octave);
-        if (n === null) return;
-        event.preventDefault();
-        keyNotes.current.set(event.code, n);
-        noteOn(n);
-      }
-    }
-    function onKeyUp(event: KeyboardEvent): void {
-      const n = keyNotes.current.get(event.code);
-      if (n === undefined) return;
-      keyNotes.current.delete(event.code);
-      noteOff(n);
-    }
-    window.addEventListener('keydown', onKeyDown);
-    window.addEventListener('keyup', onKeyUp);
-    window.addEventListener('blur', releaseAll);
-    return () => {
-      window.removeEventListener('keydown', onKeyDown);
-      window.removeEventListener('keyup', onKeyUp);
-      window.removeEventListener('blur', releaseAll);
-      releaseAll();
-    };
-  }, [octave, noteOn, noteOff]);
+  useComputerKeys({ octave, setOctave, noteOn, noteOff, onSpace: kind === 'chord' ? () => playChord('together') : () => playScale('up') });
 
   const degrees = selectionDegrees(selection);
   const selectionName = kind === 'chord' ? chordName(root, chordTypeId) : scaleName(root, scaleTypeId);
@@ -211,31 +115,7 @@ export function Explore({ audio }: { readonly audio: LiveAudio }) {
         )}
       </section>
 
-      <div className="keyboard-bar">
-        <div className="octave" role="group" aria-label="Octave">
-          <button type="button" className="button icon" aria-label="Octave down" onClick={() => setOctave((o) => clampOctave(o - 1))} disabled={octave <= KEYBOARD_OCTAVE_RANGE[0]}>
-            −
-          </button>
-          <span className="octave-label">C{octave}</span>
-          <button type="button" className="button icon" aria-label="Octave up" onClick={() => setOctave((o) => clampOctave(o + 1))} disabled={octave >= KEYBOARD_OCTAVE_RANGE[1]}>
-            +
-          </button>
-        </div>
-        <button type="button" className="button toggle" aria-pressed={settings.noteNames} onClick={() => updateSettings({ noteNames: !settings.noteNames })}>
-          Note names
-        </button>
-        <label className="sound-picker">
-          <span className="visually-hidden">Sound</span>
-          <select className="select" value={sound.id} onChange={(event) => updateSettings({ soundId: event.target.value })}>
-            {SOUNDS.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-
+      <KeyboardBar octave={octave} setOctave={setOctave} settings={settings} updateSettings={updateSettings} />
       <Keyboard
         lowestNote={lowestNote}
         octaves={octaves}
@@ -312,10 +192,17 @@ export function Explore({ audio }: { readonly audio: LiveAudio }) {
                 Up and down
               </button>
               {keyMode && (
-                <button type="button" className="button" onClick={() => player.play(cadenceEvents(key(root, keyMode)), sound.patch)}>
+                <button type="button" className="button" onClick={() => play(cadenceEvents(key(root, keyMode)))}>
                   Hear the key
                 </button>
               )}
+              <button
+                type="button"
+                className="button"
+                onClick={() => navigate({ name: 'guide', root: formatNote(root, 'ascii'), scale: scaleTypeId })}
+              >
+                Open in Scale Guide
+              </button>
             </>
           )}
           {lit && (
@@ -324,6 +211,19 @@ export function Explore({ audio }: { readonly audio: LiveAudio }) {
             </button>
           )}
         </div>
+      </section>
+
+      <section className="card circle-card" aria-labelledby="circle-title">
+        <h2 id="circle-title" className="card-kicker">
+          Circle of fifths
+        </h2>
+        <p className="card-note">
+          Each step clockwise adds a sharp (or takes away a flat), and keys side by side share all but one note. Inside each major key is
+          its relative minor, with the same notes. Tap a key to open it in the Scale Guide.
+        </p>
+        <CircleOfFifths
+          onPick={(k) => navigate({ name: 'guide', root: formatNote(k.tonic, 'ascii'), scale: k.mode === 'major' ? 'major' : 'naturalMinor' })}
+        />
       </section>
     </main>
   );

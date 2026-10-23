@@ -1,11 +1,11 @@
 # Handoff: where Keyed In stands
 
-Last updated 2026-10-24. Milestones 0 to 2 are pushed and live (bundle `index-hgcaN4oT.js`, up about 50 seconds after the push).
+Last updated 2026-10-24. Milestone 3 is committed locally and not pushed; the live site is Milestone 2 (bundle `index-hgcaN4oT.js`). Pushing would put the Scale Finder, Scale Guide and circle of fifths live.
 
 - **Live site**: https://brendanauri.github.io/keyed-in/ (GitHub Pages, deployed by GitHub Actions on every push to `main`; the first deploy took about 50 seconds)
 - **Repo**: https://github.com/BrendanAuri/keyed-in (public)
 - **Design**: [SPEC.md](../SPEC.md) is the source of truth. §17 lists the milestones, §19 the settled and open decisions, §20 the idea backlog. [plan.md](plan.md) is the original plan, kept for the app survey, research and sources.
-- **Health**: 142 tests pass (94 on the theory engine, including the Tonal checks in `src/theory/oracle.test.ts`); `npm run build` is clean.
+- **Health**: 174 tests pass (including the Tonal checks in `src/theory/oracle.test.ts`); `npm run build` is clean.
 
 ## What's built
 
@@ -14,6 +14,7 @@ Last updated 2026-10-24. Milestones 0 to 2 are pushed and live (bundle `index-hg
 | 0 | Scaffold with Dial In's stack and versions; SPEC, CLAUDE.md, README and this handoff; a Home screen listing the four modes and three tools as "Coming soon" with a link to Dial In; PWA shell (manifest, service worker, update prompt, icons drawn by `scripts/make-icons.mjs`); the GitHub Pages workflow; `storageKey()` with the `keyedin.` prefix |
 | 1 | The theory engine in `src/theory/` (SPEC §5): spelled notes and pitches, intervals, 22 chord types, 13 scales and modes, keys and the circle of fifths, Roman numerals, chord naming, frequencies and harmonics, and scale matching for the Scale Finder. Tonal added as a dev dependency and used as the answer key. Three style decisions settled (SPEC §19): numerals against the major scale (♭VI, ♭VII), chord symbols spelled out (Cdim, Cm7♭5), middle C = C4 |
 | 2 | Sound and keyboard (SPEC §6, §7, §13): a trimmed copy of Dial In's voice with four fixed sounds (Electric piano, Organ, Pluck, Pad), each with a level so they match in loudness; playback helpers for chords (together, strum, one at a time), scales, cadences and progressions, voiced like a pianist with the root in the bass; the Start screen, tabs and hash routes; the multi-touch keyboard; saved settings (note names, sound); and Explore, which names whatever you play and lights up and plays any chord or scale. Sound settled as synth only for now (SPEC §19) |
+| 3 | The tools (SPEC §14): the Scale Finder (tap, type names or type frequencies; grouped results, one-note-off matches, harmonics flagged, a saved A4 tuning with a suggestion when a song looks detuned, and a frequency table) and the Scale Guide (feel and colour notes, chords as triads or sevenths with feel tags, What next? from 29 named moves, 15 progressions that loop at a set tempo, bass frequencies). Feel words as data in `content/feel.ts`; logic in `src/tools/`. The circle of fifths in Explore. The blues spelling rule (E♭ blues has A, as a ♯4). Explore, Finder and Guide share `ui/instrument.ts` and `KeyboardBar` |
 
 ## Still to do from setup ([setup.md](setup.md))
 
@@ -25,6 +26,8 @@ Steps 1–6 are done: GitHub Pages is on (Source: GitHub Actions), `origin` poin
 
 - Installing it on an Android phone alongside Dial In (both apps installed and working offline is a Milestone 9 check). The live site itself was checked in the browser pane: the bundle matches a local `/keyed-in/` build, the manifest and service worker are scoped to `/keyed-in/`, all five icons load, "Keyed In now works offline" shows on a first visit, and the console is clean.
 - iPhone: nothing has been tried on one yet.
+- **Milestone 3 by hand**: the Finder, Guide and circle were driven in the browser pane at 320, 375 and 414 px and on desktop (no sideways overflow; the circle's buttons never touch), but haven't been used on a phone. Worth hearing: the progression loops (is a bar per chord at 100 BPM a good start?), What next?'s Hear it pairs, and whether the feel words ring true.
+- **The feel words** in `content/feel.ts` are a first draft. They're hedged as "often heard as", and the songs named are well-known uses of each progression, but they deserve a musician's read.
 
 Checked by hand on an Android phone after the Milestone 2 deploy: all four sounds are good, multi-touch chords work on the on-screen keyboard, and the keys' labels are readable.
 
@@ -32,11 +35,11 @@ Checked on the live site after the Milestone 2 push: a browser that had Mileston
 
 ## Decisions waiting (SPEC §19)
 
-Each at the milestone that needs it: FSRS or rolling accuracy for ear items (Milestone 6); what counts towards the streak (Milestone 8); notation and a second instrument view (later). Milestone 3's two questions are settled: the tools come next, and the blues blue note is a ♭5 unless that needs a double flat, then a ♯4.
+Each at the milestone that needs it: FSRS or rolling accuracy for ear items (Milestone 6); what counts towards the streak (Milestone 8); notation and a second instrument view (later).
 
 ## Next
 
-**Milestone 3: the tools.** Scale Finder (notes, names or frequencies in; grouped scales, near matches, frequency table, harmonics check and A4 reference out, using `matchScales` and `frequency.ts`) and Scale Guide (a scale's chords with numerals and feel tags, What next?, progressions to loop with `progressionEvents`), with the feel words as data in `content/feel.ts`; the circle of fifths in Explore; and the blues spelling rule (SPEC §19) in `scales.ts`, with the Tonal check told to expect it.
+**Milestone 4: the question types.** `spell` (with the `guide` levels of help), `change`, `fix`, `identify`, `hearQuality`, `echo` and `fact` in `src/exercises/`, each with `generate(params, rng)`, `check` and `feedback` (SPEC §8); the keyboard's toggle mode for building answers; the question screen with Yours / Correct / A-B; and a Drill picker. Needs Dial In's seeded `rng.ts`. Check SPEC §19 for any open questions first.
 
 ## How to work on it
 
@@ -72,4 +75,6 @@ From Milestone 1, on using Tonal as the answer key:
 From Milestone 2:
 - After adding exports to `constants.ts`, the dev server served a stale copy ("does not provide an export named LIMITER_ATTACK") and the page went blank, though `tsc` and the build passed. Restarting the dev server fixed it.
 - With a phone-sized viewport set, the browser pane scales the page to fit, and coordinate clicks (even by element ref) land in the wrong place: a click meant for the root picker played a key instead. Driving the page with JavaScript (`element.click()`, setting a select's value and firing `change`) worked, as in Dial In. Clicking two things in one script runs both before React re-renders, so the second can act on stale state.
+- A handler passed to `useComputerKeys` must keep the same identity between renders: the hook re-subscribes when it changes, and its clean-up releases held keys, which would cut notes off. The Scale Finder wraps its changing tap handler in a ref for this.
+- Writing content tests caught a real mistake: the flamenco progression was listed under harmonic minor, which has no ♭VII. `guide.test.ts` now checks that every progression's chords are in each scale it's listed under (one borrowed exception allowed).
 - Sounds can be checked without ears: in the dev server, `await import('/src/audio/voice.ts')` in the page, render into an `OfflineAudioContext` through `createOutputBus`, and measure peak and RMS. That's how the organ was found about 4.5 dB hotter than the rest and given a lower level.

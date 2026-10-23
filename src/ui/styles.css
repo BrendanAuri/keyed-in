@@ -114,6 +114,47 @@ select {
   color: var(--text-muted);
 }
 
+.button.small {
+  min-height: 34px;
+  padding: 0 10px;
+  font-size: 0.85rem;
+}
+
+.link-button {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.input {
+  min-width: 0;
+  min-height: var(--touch);
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 1rem;
+}
+
+.form-error {
+  margin: 8px 0 0;
+  color: var(--danger);
+  font-size: 0.9rem;
+}
+
+.notice {
+  margin: 8px 0;
+  padding: 10px 12px;
+  border: 1px solid #b8860b;
+  border-radius: var(--radius);
+  background: rgb(255 209 102 / 8%);
+}
+
 .select {
   min-height: var(--touch);
   max-width: 100%;
@@ -220,6 +261,22 @@ select {
   background: var(--surface-raised);
   color: var(--text);
   font-weight: 600;
+}
+
+/* On narrow phones the tabs get their own row, shared out evenly. */
+@media (max-width: 519px) {
+  .app-bar {
+    flex-wrap: wrap;
+  }
+
+  .tabs {
+    flex: 1 1 100%;
+  }
+
+  .tab {
+    flex: 1 1 0;
+    padding: 0 6px;
+  }
 }
 
 /* ── Screens ───────────────────────────────────────────────────────────── */
@@ -605,6 +662,324 @@ select {
   display: grid;
   grid-template-columns: minmax(0, 7fr) minmax(0, 3fr);
   gap: 8px;
+}
+
+/* ── Circle of fifths ──────────────────────────────────────────────────── */
+
+.circle-card {
+  border-color: var(--border);
+}
+
+.circle {
+  position: relative;
+  width: min(100%, 340px);
+  aspect-ratio: 1;
+  margin: 0 auto;
+}
+
+.circle-ring {
+  position: absolute;
+  inset: 8%;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+}
+
+.circle-key {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface-raised);
+  line-height: 1.05;
+  cursor: pointer;
+  touch-action: manipulation;
+  transform: translate(-50%, -50%);
+}
+
+.circle-key:hover {
+  border-color: var(--accent);
+}
+
+.circle-key.major {
+  width: 18%;
+}
+
+.circle-key.minor {
+  width: 11.5%;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+.circle-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.circle-alt {
+  color: var(--text-muted);
+  font-size: 0.6rem;
+}
+
+.circle-sig {
+  color: var(--accent);
+  font-size: 0.6rem;
+}
+
+/* ── Scale Finder ──────────────────────────────────────────────────────── */
+
+.entry-form {
+  display: flex;
+  gap: 8px;
+}
+
+.entry-form .input {
+  flex: 1 1 auto;
+}
+
+.entry-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.entry-chip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  max-width: 100%;
+  padding: 4px 4px 4px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-raised);
+}
+
+.entry-chip.left-out .entry-label {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.entry-label {
+  font-weight: 700;
+}
+
+.entry-detail {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.entry-detail.harmonic {
+  color: var(--accent);
+}
+
+.entry-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.result-list {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.result {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-raised);
+}
+
+.result:first-child:not(.near) {
+  border-color: var(--accent);
+}
+
+.result .card-note {
+  margin: 0;
+}
+
+.result-name {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.other-homes {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.tuning-row {
+  display: grid;
+  gap: 10px;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.hz-table {
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.hz-table th,
+.hz-table td {
+  padding: 4px 10px;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.hz-table th {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.hz-table td.bass {
+  background: rgb(242 184 75 / 14%);
+}
+
+/* ── Scale Guide ───────────────────────────────────────────────────────── */
+
+.scale-card {
+  display: grid;
+  gap: 8px;
+}
+
+.scale-card > p {
+  margin: 0;
+}
+
+.scale-title {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.scale-feel {
+  color: var(--text);
+}
+
+.colour-note {
+  color: var(--text-muted);
+}
+
+.chord-list,
+.move-list,
+.progression-list {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chord-row {
+  display: grid;
+  grid-template-columns: 3.6em auto 1fr;
+  align-items: baseline;
+  gap: 2px 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-raised);
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.chord-row.selected {
+  border-color: var(--accent);
+}
+
+.chord-numeral {
+  font-weight: 700;
+}
+
+.chord-symbol {
+  font-weight: 600;
+}
+
+.chord-notes {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.chord-feel {
+  grid-column: 1 / -1;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.move-row,
+.progression-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-raised);
+}
+
+.move-text,
+.progression-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.move-text p,
+.progression-text p {
+  margin: 0;
+}
+
+.move-name,
+.progression-numerals {
+  font-weight: 700;
+}
+
+.progression-symbols {
+  color: var(--accent);
+}
+
+.move-feel,
+.progression-feel {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.tempo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tempo-label {
+  min-width: 5.5em;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
 }
 
 /* ── Notices ───────────────────────────────────────────────────────────── */

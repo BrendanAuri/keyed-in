@@ -24,8 +24,16 @@ const TOOLS: readonly Feature[] = [
     description: "Play anything and see what it's called. Light up any chord or scale and hear it.",
     route: { name: 'explore' },
   },
-  { title: 'Scale Finder', description: 'Enter notes, or frequencies from a spectrum analyser, and see which scales they fit.' },
-  { title: 'Scale Guide', description: 'Pick a scale and see its chords, how each one feels and where it likes to go next.' },
+  {
+    title: 'Scale Finder',
+    description: 'Enter notes, or frequencies from a spectrum analyser, and see which scales they fit.',
+    route: { name: 'finder' },
+  },
+  {
+    title: 'Scale Guide',
+    description: 'Pick a scale and see its chords, how each one feels and where it likes to go next.',
+    route: { name: 'guide' },
+  },
 ];
 
 /** What the app holds: modes and tools, those still to come marked "Coming soon". */

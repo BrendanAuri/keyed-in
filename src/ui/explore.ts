@@ -7,8 +7,8 @@ import { buildChord, chordName, chordTypeOf, inversionName, voiceChord } from '.
 import { degreeLabel, intervalName, intervalOf, semitones, transpose, transposePitch } from '../theory/intervals';
 import type { KeyMode } from '../theory/keys';
 import { describeNotes } from '../theory/naming';
-import { formatNote, midi, mod, noteFromPitchClass, pitch, pitchClass, type Note, type Pitch } from '../theory/notes';
-import { scaleTypeOf } from '../theory/scales';
+import { bothSpellings, formatNote, midi, mod, noteFromPitchClass, pitch, pitchClass, type Note, type Pitch } from '../theory/notes';
+import { scaleSteps } from '../theory/scales';
 
 export type Selection =
   | { readonly kind: 'chord'; readonly root: Note; readonly chordTypeId: string; readonly inversion: number }
@@ -19,13 +19,6 @@ export interface Described {
   readonly title: string;
   /** "C/E · first inversion · also Am7/C". */
   readonly detail: string;
-}
-
-/** A pitch class by its usual name, with the other spelling for black keys: "C♯ / D♭". */
-function bothSpellings(pc: number): string {
-  const sharp = formatNote(noteFromPitchClass(pc, 'sharp'));
-  const flat = formatNote(noteFromPitchClass(pc, 'flat'));
-  return sharp === flat ? sharp : `${sharp} / ${flat}`;
 }
 
 function capitalise(text: string): string {
@@ -83,13 +76,16 @@ export function selectionPitches(selection: Selection, octave: number): Pitch[] 
   const atOctave = pitch(selection.root.letter, selection.root.accidental, octave);
   const root = midi(atOctave) < lowestC ? pitch(atOctave.letter, atOctave.accidental, octave + 1) : atOctave;
   if (selection.kind === 'chord') return voiceChord(root, selection.chordTypeId, selection.inversion);
-  const steps = scaleTypeOf(selection.scaleTypeId).intervals.map((i) => transposePitch(root, i));
+  const steps = scaleSteps(selection.root, selection.scaleTypeId).map((step) => transposePitch(root, step.interval));
   return [...steps, transposePitch(root, intervalOf('P8'))];
 }
 
 /** Each note of the selection with its degree, in recipe order: C (1), E♭ (♭3), G (5). */
 export function selectionDegrees(selection: Selection): { readonly note: string; readonly degree: string }[] {
-  const intervals = selection.kind === 'chord' ? chordTypeOf(selection.chordTypeId).intervals : scaleTypeOf(selection.scaleTypeId).intervals;
+  const intervals =
+    selection.kind === 'chord'
+      ? chordTypeOf(selection.chordTypeId).intervals
+      : scaleSteps(selection.root, selection.scaleTypeId).map((step) => step.interval);
   return intervals.map((i) => ({ note: formatNote(transpose(selection.root, i)), degree: degreeLabel(i) }));
 }
 

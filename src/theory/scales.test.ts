@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { n, spelled } from './fixtures';
 import { LETTERS, noteFromPitchClass } from './notes';
-import { SCALE_TYPES, buildScale, isHeptatonic, scaleDegreeLabels, scaleName } from './scales';
+import { degreeLabel } from './intervals';
+import { SCALE_TYPES, buildScale, isHeptatonic, scaleDegreeLabels, scaleName, scaleSteps } from './scales';
 
 describe('building scales', () => {
   it('uses each letter once in seven-note scales', () => {
@@ -23,6 +24,16 @@ describe('building scales', () => {
     expect(spelled(buildScale(n('A'), 'minorPentatonic'))).toBe('A C D E G');
     expect(spelled(buildScale(n('C'), 'blues'))).toBe('C Eb F Gb G Bb');
     expect(spelled(buildScale(n('C'), 'majorBlues'))).toBe('C D Eb E G A');
+  });
+
+  it("spells a blue note that would need a double flat as the note below's sharp (SPEC §19)", () => {
+    expect(spelled(buildScale(n('A'), 'blues'))).toBe('A C D Eb E G');
+    expect(spelled(buildScale(n('Eb'), 'blues'))).toBe('Eb Gb Ab A Bb Db');
+    expect(spelled(buildScale(n('Gb'), 'majorBlues'))).toBe('Gb Ab A Bb Db Eb');
+    expect(scaleSteps(n('Eb'), 'blues').map((s) => degreeLabel(s.interval)).join(' ')).toBe('1 ♭3 4 ♯4 5 ♭7');
+    expect(scaleSteps(n('C'), 'blues').map((s) => degreeLabel(s.interval)).join(' ')).toBe('1 ♭3 4 ♭5 5 ♭7');
+    // Other scales keep their double flats: they're how the key is written.
+    expect(spelled(buildScale(n('Fb'), 'major'))).toBe('Fb Gb Ab Bbb Cb Db Eb');
   });
 
   it('knows which scales have seven letters', () => {

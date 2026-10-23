@@ -47,6 +47,12 @@ describe('lighting up a chord or scale', () => {
     expect(names(selectionPitches({ kind: 'scale', root: n('D'), scaleTypeId: 'dorian' }, 4))).toBe('D4 E4 F4 G4 A4 B4 C5 D5');
   });
 
+  it('follows the blues spelling rule', () => {
+    const ebBlues = { kind: 'scale', root: n('Eb'), scaleTypeId: 'blues' } as const;
+    expect(names(selectionPitches(ebBlues, 4))).toBe('E♭4 G♭4 A♭4 A4 B♭4 D♭5 E♭5');
+    expect(selectionDegrees(ebBlues).map((d) => `${d.note} ${d.degree}`)).toContain('A ♯4');
+  });
+
   it('labels each note with its degree', () => {
     expect(selectionDegrees({ kind: 'chord', root: n('C'), chordTypeId: 'minor7', inversion: 2 })).toEqual([
       { note: 'C', degree: '1' },

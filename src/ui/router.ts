@@ -1,23 +1,46 @@
 /**
  * Hash routes, so the browser's back button and reloads keep you where you
- * were: #/ (Home) and #/explore. More screens join as their milestones land.
+ * were: #/ (Home), #/explore, #/finder and #/guide, with a scale in the
+ * guide's address (#/guide/Eb/naturalMinor). More screens join as their
+ * milestones land.
  */
 import { useCallback, useSyncExternalStore } from 'react';
 
-export type Route = { readonly name: 'home' } | { readonly name: 'explore' };
+export type Route =
+  | { readonly name: 'home' }
+  | { readonly name: 'explore' }
+  | { readonly name: 'finder' }
+  /** `root` is a note in ASCII ("Eb"), `scale` a scale type id. Both or neither. */
+  | { readonly name: 'guide'; readonly root?: string; readonly scale?: string };
 
 export function parseRoute(hash: string): Route {
-  const [first] = hash.replace(/^#\/?/, '').split('/').filter(Boolean);
+  const parts = hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(safeDecode);
+  const [first, second, third] = parts;
   if (first === 'explore') return { name: 'explore' };
+  if (first === 'finder') return { name: 'finder' };
+  if (first === 'guide') return second && third ? { name: 'guide', root: second, scale: third } : { name: 'guide' };
   return { name: 'home' };
 }
 
+function safeDecode(part: string): string {
+  try {
+    return decodeURIComponent(part);
+  } catch {
+    return part;
+  }
+}
+
 export function routeHash(route: Route): string {
+  const e = encodeURIComponent;
   switch (route.name) {
     case 'home':
       return '#/';
     case 'explore':
       return '#/explore';
+    case 'finder':
+      return '#/finder';
+    case 'guide':
+      return route.root && route.scale ? `#/guide/${e(route.root)}/${e(route.scale)}` : '#/guide';
   }
 }
 

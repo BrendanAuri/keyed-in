@@ -60,7 +60,8 @@ Two new dependencies were agreed in the plan: **ts-fsrs** (runtime, Milestone 6,
 src/
   constants.ts   # every tunable number lives here
   theory/        # pure TS: notes, intervals, chords, scales, keys, numerals, chord naming, frequencies, scale matching
-  audio/         # Web Audio: voice (from Dial In), patches, play note / chord / cadence / progression
+  tools/         # pure TS: the Scale Finder's input and tables, the Scale Guide's chords, moves and progressions
+  audio/         # Web Audio: voice (from Dial In), patches, play note / chord / cadence / progression, loops
   exercises/     # pure TS: one module per question type: generate, check, feedback
   srs/           # pure TS: items, FSRS wrapper, session builder, confusions
   content/       # plain data: schema.ts, packs/, feel.ts (how chords and moves tend to feel)
@@ -71,10 +72,10 @@ src/
     screens/     # Start, Home, LevelSelect, Round, Result, Review, Drill, Daily, Explore, ScaleFinder, ScaleGuide, Stats
 ```
 
-Built so far: `constants.ts`, `storage/`, `ui/components/UpdatePrompt.tsx` and `ui/screens/Home.tsx` (Milestone 0); `theory/` (Milestone 1, §5); `audio/`, `game/settings.ts`, the router, the Keyboard, Segmented and NotePicker components, and the Start and Explore screens (Milestone 2, §6, §7, §13).
+Built so far: `constants.ts`, `storage/`, `ui/components/UpdatePrompt.tsx` and `ui/screens/Home.tsx` (Milestone 0); `theory/` (Milestone 1, §5); `audio/`, `game/settings.ts`, the router, the Keyboard, Segmented and NotePicker components, and the Start and Explore screens (Milestone 2, §6, §7, §13); `content/feel.ts`, `tools/` (pure TypeScript for the two tools, like `theory/`), `ui/instrument.ts`, the CircleOfFifths and KeyboardBar components, and the ScaleFinder and ScaleGuide screens (Milestone 3, §14).
 
 Rules, in the same spirit as Dial In:
-- `theory/`, `exercises/` and `srs/` never import React or touch the DOM.
+- `theory/`, `tools/`, `exercises/` and `srs/` never import React or touch the DOM.
 - Every question comes from a seed, so any round can be replayed.
 - `content/` is plain, JSON-serialisable data: no functions, no imports beyond types. Nothing outside it names a specific pack or level.
 - No magic numbers outside `constants.ts` (small named constants at the top of a module are fine).
@@ -232,11 +233,15 @@ Built in Milestone 2 (`ui/screens/Explore.tsx`, with its logic in `ui/explore.ts
 - **Play anything and it's named**, in a panel above the keyboard: one note ("C♯ / D♭"), an interval ("Major 3rd: C up to E, 4 half steps"), or a chord in words with its symbol, inversion and other names ("C major 6th: C6, also Am7/C"). Once the keys are let go, the panel keeps showing the most notes held at once, faded, so there's time to read it; moving one finger to a new chord shows the new one.
 - **Light up a chord or scale**: Chord or Scale, a root (letter, then ♭, ♮ or ♯), the chord or scale type, and for chords the inversion. The notes light up on the keyboard, starting in its lowest octave, and are listed with their degrees (C 1, E♭ ♭3, G 5). Buttons: Play, Strum and One at a time for chords; Play up, Up and down, and Hear the key (a cadence, for the major and minor scales) for scales. Hide turns the lights off until the picker changes. Space plays it from a computer keyboard.
 - **Sound**: the four fixed sounds, chosen from a menu next to the keyboard and saved.
-- Still to come: a circle of fifths you can tap, opening a key in the Scale Guide (Milestone 3, with the guide), and naming from a MIDI keyboard.
+- **Open in Scale Guide** for any scale picked (Milestone 3).
+- **The circle of fifths** (Milestone 3, `ui/components/CircleOfFifths.tsx`): the twelve major keys round the outside, each with its key signature ("2♯") and its other spelling at the bottom of the circle (F♯/G♭, D♭/C♯, B/C♭), and the relative minors inside. Tapping a key opens it in the Scale Guide. The buttons are sized as a share of the circle, so at 320 px the closest two are still about 2 px apart.
+- Still to come: naming from a MIDI keyboard.
 
 ## 14. Tools
 
 These aren't games. They make the app useful when you're writing or picking apart music, and they reuse the theory engine. They link up: Scale Finder's results open in the Scale Guide.
+
+Built in Milestone 3. The logic is pure TypeScript in `tools/` (`finder.ts`, `guide.ts`, tested); the screens are `ui/screens/ScaleFinder.tsx` and `ScaleGuide.tsx`, with routes `#/finder` and `#/guide/<root>/<scale>` (for example `#/guide/Eb/naturalMinor`). All three screens with a keyboard share `ui/instrument.ts` (voices, playback, loops and computer keys) and the `KeyboardBar` component. The A4 tuning is a saved setting, shared by both tools.
 
 ### 14.1 Scale Finder
 
@@ -259,6 +264,13 @@ Optionally, mark the **home note**: the one the music feels like it rests on.
 - **A4 reference**: 440 Hz by default, with 432 and 442 Hz presets, or any value. If every frequency entered is off by about the same amount, it suggests the song is tuned differently and offers to switch.
 - **Harmonics check**: one bass note shows several peaks on an analyser, at 2, 3, 4 and 5 times its frequency (an octave up, an octave and a fifth, two octaves, two octaves and a major 3rd). When a frequency entered is a whole-number multiple of another one (within a tolerance), it's flagged ("165 Hz is the 3rd harmonic of 55 Hz (A1), so it's probably part of that note"), and a tap leaves it out of the search.
 - A short tip on reading analysers: the lowest strong peak is usually the note; low notes are hard to read exactly, so check a harmonic an octave or two up.
+
+As built, and where it differs from the above:
+- Tapping a key adds its note, and tapping it again takes it away; computer keys do the same. Typed input takes names and frequencies in any mix, separated by spaces or commas ("A C E", "55 110hz 165.5"); anything unreadable is shown back.
+- Frequencies show their nearest note and cents ("49.4 Hz: G1, +14 cents"). A harmonic is flagged as a question ("3rd harmonic of 55 Hz?") and stays in the search until Leave out is pressed.
+- Results show the first six groups, then Show all. Each shows its best scale, the notes it adds that weren't entered, Play, Open in Scale Guide, and the same notes with other homes as links. Near matches are listed under "One note off" once four or more notes are entered.
+- The neighbours of each note aren't shown in every row; instead, one line gives the gap between the lowest entered note and the next one up in octave 1 ("C1 and the note above it are only 1.9 Hz apart").
+- The notes entered aren't kept when leaving the screen.
 
 **Later**: drop in an audio file (decoded in the browser, never uploaded) or listen through the microphone, and get a key estimate from the notes it hears (a chromagram compared with key profiles). It's shown as a guess with its confidence, since key detection is often wrong on real tracks. Web MIDI input when that arrives.
 
@@ -285,9 +297,17 @@ Pick a root and a scale, or arrive from Scale Finder, Explore or the circle of f
   - **Building tension** (IV → V, ii → V)
   - **Darkening** (IV → iv, a chord borrowed from minor): bittersweet
 - **Progressions**: common ones in the scale, with how they feel and where you hear them (I–V–vi–IV in pop; vi–IV–I–V; ii–V–I in jazz; i–♭VI–♭III–♭VII, epic and emotional, common in trance and EDM; i–♭VII–♭VI–V, the Andalusian cadence), looped at a tempo you pick.
-- **Links into Learn**: each section links to the level that teaches it ("How this works: Foundations 13").
+- **Links into Learn**: each section links to the level that teaches it ("How this works: Foundations 13"). Still to come, once Learn exists (Milestone 5).
 
 Feel words are written as "often heard as". A chord's feel depends on the key, the tempo, the sound and the listener. They live in `content/feel.ts` as data, per scale degree and chord quality and per move, so the guide needs no text for each key.
+
+As built:
+- **Content** (`content/feel.ts`): a feel for each of the 13 scales; a feel for each chord of the nine seven-note scales, by degree, with a fallback by chord type; 29 named moves, two of them borrowed (IV → iv and I → ♭VII in major) and one borrowed into natural minor (iv → V); and 15 progressions, each listed under the scales that have its chords (the flamenco i–♭VII–♭VI–V under natural minor only, borrowing its V). Songs named: "Let It Be", "With or Without You", "Zombie", "Stand By Me", "Sweet Child O' Mine" and "Oye Como Va".
+- **Colour notes** come from comparing a scale's degrees with those of major or natural minor (set per scale in the content): Dorian's 6 against ♭6, Lydian's ♯4 against 4, harmonic minor's 7 against ♭7.
+- **Chords** show as three-note chords or sevenths. Tapping one plays it with its root in the bass and lights it on the keyboard. What next? always works from the three-note chord on that degree.
+- **Progressions** loop with each chord lasting a bar, at 60–160 BPM in steps of 5 (100 to start), and keep looping in time when the tempo changes. The player schedules each time round half a second ahead, so there's no gap.
+- **Bass notes**: octaves 1 and 2 at the saved A4.
+- **Scales without seven letters** (the pentatonics and blues) have no chords of their own; the guide says so and links to the scale whose chords fit (major or natural minor on the same root).
 
 **Later**: more borrowed chords (♭VI and ♭VII in a major key), copying a progression as text, and exporting it as a MIDI file to drop into a DAW (a small hand-written encoder, no dependency).
 
@@ -295,15 +315,15 @@ Feel words are written as "often heard as". A chord's feel depends on the key, t
 
 - Portrait-first, dark theme, large touch targets. Dial In's look, with its own accent colour (amber, where Dial In is teal), so the two apps are easy to tell apart.
 - **PWA**, as in Dial In: a manifest (standalone, dark theme, 192, 512 and maskable icons, an Apple touch icon and iOS meta tags), everything precached, a "Keyed In now works offline" notice the first time, and "A new version of Keyed In is ready" with **Reload** / **Later**, so an update never interrupts a round. An install card comes in Milestone 9.
-- **Navigation**: Tap to start first (§6), then tabs for Home and Explore, with more as screens arrive. Screens are hash routes (`#/`, `#/explore`), so the back button and reloads keep your place.
-- **Home**: the modes under **Play** and the tools under **Tools**, as cards, and a card linking to Dial In. Cards that work are outlined in amber and marked "Open" (Explore, from Milestone 2); the rest say "Coming soon". From Milestone 5 it also shows where to continue, and later today's daily and how many reviews are due.
+- **Navigation**: Tap to start first (§6), then tabs for Home, Explore, Finder and Guide, with more as screens arrive. Below 520 px wide the tabs take their own row under the title. Screens are hash routes (`#/`, `#/explore`, `#/finder`, `#/guide/<root>/<scale>`), so the back button and reloads keep your place; changing the scale in the guide replaces the address rather than adding to history.
+- **Home**: the modes under **Play** and the tools under **Tools**, as cards, and a card linking to Dial In. Cards that work are outlined in amber and marked "Open" (Explore from Milestone 2, Scale Finder and Scale Guide from Milestone 3); the rest say "Coming soon". From Milestone 5 it also shows where to continue, and later today's daily and how many reviews are due.
 
 ## 16. Persistence
 
 All storage goes through `storage/storage.ts`, and every key starts with `keyedin.` (build them with `storageKey()` in `storage/keys.ts`). Both apps live on the `brendanauri.github.io` origin, so they share localStorage, and Dial In's keys start with `dialin.`. Service workers and their caches are scoped by path (`/dial-in/` and `/keyed-in/`), so the two apps can be installed side by side and both work offline; check this once in Milestone 9.
 
 Keys, each versioned:
-- `keyedin.settings` (Milestone 2, `game/settings.ts`): note names on or off, and the sound. Later the A4 reference. Missing or unreadable values fall back to the defaults.
+- `keyedin.settings` (Milestone 2, `game/settings.ts`): note names on or off, the sound, and (from Milestone 3) the A4 tuning, 400 to 480 Hz. Missing or unreadable values fall back to the defaults, so settings saved before a field existed still load.
 - Planned: `keyedin.progress` (levels, stars, the run in progress, placement) and `keyedin.review` (an FSRS card per item, confusions), each with a migration stub. Ask for persistent storage on the first progress save.
 
 ## 17. Milestones
@@ -351,7 +371,7 @@ Build in order. Each milestone ends with `npm test` and `npm run build` passing,
 | Octave numbers | **Middle C is C4** (scientific pitch), as in Dial In and most analysers and tuners. A setting for DAW numbering can come later (§20) |
 | Sound | **Dial In's synth with four fixed sounds, for now**: small, and offline from the start. A sampled piano can come later (§20). All four were checked by ear on an Android phone after Milestone 2 |
 | Tools timing | **Milestone 3, before the question types**: useful straight away, and the Scale Guide's feel words and progressions feed Learn's intros later |
-| Blues scale spelling | **♭5, or ♯4 where ♭5 would need a double flat**: C blues has G♭, E♭ blues has A rather than B♭♭. The same rule covers major blues's ♭3 (G♭ major blues has A rather than B♭♭). To build in Milestone 3, where it also becomes an exception in the Tonal checks |
+| Blues scale spelling | **♭5, or ♯4 where ♭5 would need a double flat**: C blues has G♭, E♭ blues has A rather than B♭♭. The same rule covers major blues's ♭3 (G♭ major blues has A rather than B♭♭). Built in Milestone 3 (`scaleSteps` in `scales.ts`), where the degree follows the spelling (E♭ blues shows A as ♯4), and the Tonal check expects it |
 | Tools | **Scale Finder** and **Scale Guide**, linked to each other, in Milestone 3 (§14) |
 | Repo and hosting | github.com/BrendanAuri/keyed-in (public), `main` branch, deployed to brendanauri.github.io/keyed-in/ |
 

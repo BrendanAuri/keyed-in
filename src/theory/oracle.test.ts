@@ -11,7 +11,20 @@ import { frequencyOf } from './frequency';
 import { formatInterval, intervalBetween, intervalOf, transpose, type Interval as OurInterval } from './intervals';
 import { key, keyChords, keySignature, scaleChords } from './keys';
 import { nameChord } from './naming';
-import { LETTERS, formatNote, formatPitch, midi, note, parseNote, pitch, pitchClass, type Note as OurNote } from './notes';
+import {
+  LETTERS,
+  formatNote,
+  formatPitch,
+  letterAt,
+  letterIndex,
+  midi,
+  note,
+  parseNote,
+  pitch,
+  pitchClass,
+  spellWithLetter,
+  type Note as OurNote,
+} from './notes';
 import { numeralChord, parseNumeral } from './numerals';
 import { SCALE_TYPES, buildScale } from './scales';
 
@@ -133,12 +146,19 @@ describe('agrees with Tonal on chords and scales', () => {
     expect(Object.keys(TONAL_SCALES).sort()).toEqual(SCALE_TYPES.map((t) => t.id).sort());
   });
 
-  it('spells every scale on every root the same way', () => {
+  it('spells every scale on every root the same way, apart from the blues rule', () => {
+    // SPEC §19: a blues scale's double flat becomes the sharp of the note below (B♭♭ → A); Tonal keeps B♭♭.
+    const bluesRule = (name: string): string => {
+      const theirs = parseNote(name);
+      if (!theirs || theirs.accidental > -2) return name;
+      return ascii(spellWithLetter(pitchClass(theirs), letterAt(letterIndex(theirs.letter) - 1)));
+    };
     for (const type of SCALE_TYPES) {
       for (const root of ROOTS) {
         const theirs = Scale.get(`${ascii(root)} ${TONAL_SCALES[type.id] ?? '?'}`);
         expect(theirs.empty, type.id).toBe(false);
-        expect(asciiAll(buildScale(root, type.id)), `${ascii(root)} ${type.id}`).toEqual(theirs.notes);
+        const expected = type.avoidDoubleFlats ? theirs.notes.map(bluesRule) : theirs.notes;
+        expect(asciiAll(buildScale(root, type.id)), `${ascii(root)} ${type.id}`).toEqual(expected);
       }
     }
   });

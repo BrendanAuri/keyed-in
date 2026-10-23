@@ -4,11 +4,15 @@ import { UpdatePrompt } from './ui/components/UpdatePrompt';
 import { useRoute, type Navigate, type Route } from './ui/router';
 import { Explore } from './ui/screens/Explore';
 import { Home } from './ui/screens/Home';
+import { ScaleFinder } from './ui/screens/ScaleFinder';
+import { ScaleGuide } from './ui/screens/ScaleGuide';
 import { Start } from './ui/screens/Start';
 
 const TABS: readonly { readonly label: string; readonly route: Route }[] = [
   { label: 'Home', route: { name: 'home' } },
   { label: 'Explore', route: { name: 'explore' } },
+  { label: 'Finder', route: { name: 'finder' } },
+  { label: 'Guide', route: { name: 'guide' } },
 ];
 
 export function App() {
@@ -55,7 +59,20 @@ function MainApp({ route, navigate, audio }: { readonly route: Route; readonly n
           })}
         </nav>
       </header>
-      {route.name === 'explore' ? <Explore audio={audio} /> : <Home navigate={navigate} />}
+      <Screen route={route} navigate={navigate} audio={audio} />
     </>
   );
+}
+
+function Screen({ route, navigate, audio }: { readonly route: Route; readonly navigate: Navigate; readonly audio: LiveAudio }) {
+  switch (route.name) {
+    case 'home':
+      return <Home navigate={navigate} />;
+    case 'explore':
+      return <Explore audio={audio} navigate={navigate} />;
+    case 'finder':
+      return <ScaleFinder audio={audio} navigate={navigate} />;
+    case 'guide':
+      return <ScaleGuide audio={audio} navigate={navigate} rootParam={route.root} scaleParam={route.scale} />;
+  }
 }

@@ -21,6 +21,9 @@ export const MIDI_C0 = 12;
 export const A4_MIDI = 69;
 /** The usual tuning: A4 = 440 Hz. */
 export const DEFAULT_A4_HZ = 440;
+/** Tunings offered as one tap, and the range any other can be set in, in Hz. */
+export const A4_PRESETS_HZ = [432, 440, 442] as const;
+export const A4_RANGE_HZ = [400, 480] as const;
 
 // ── Voice engine (from Dial In, SPEC §6) ─────────────────────────────────
 
@@ -77,6 +80,20 @@ export const VOICING_CENTRE_MIDI = 64;
 /** A cadence or progression's bass notes sit in this MIDI range: E2 up to, not including, E3. */
 export const BASS_RANGE = [40, 52] as const;
 
+// ── Scale Guide (SPEC §14.2) ─────────────────────────────────────────────
+
+/** The guide lists each note's frequency in these octaves (about 32–130 Hz), for tuning a kick, sub or 808. */
+export const GUIDE_BASS_OCTAVES = [1, 2] as const;
+/** Tempo a progression loops at until changed, and the range it can be set to, in BPM. */
+export const LOOP_DEFAULT_BPM = 100;
+export const LOOP_BPM_RANGE = [60, 160] as const;
+/** Each chord of a looped progression lasts a bar of four beats. */
+export const LOOP_BEATS_PER_CHORD = 4;
+/** Beats each chord of a What next? pair lasts. */
+export const MOVE_BEATS = 2;
+/** How far ahead the looper schedules the next time round, in seconds. */
+export const LOOP_LOOKAHEAD_SECONDS = 0.5;
+
 // ── Keyboard (SPEC §7) ───────────────────────────────────────────────────
 
 /** Octave of the keyboard's lowest C when it first opens on a phone (C4 is middle C); wider screens start one lower. */
@@ -103,6 +120,16 @@ export const TUNING_MIN_FREQUENCIES = 3;
 export const TUNING_MIN_OFFSET_CENTS = 10;
 /** …and they're within this many cents of each other. */
 export const TUNING_MAX_SPREAD_CENTS = 12;
+/** Frequencies in this range, in Hz, are highlighted as sub and bass in the Scale Finder's table. */
+export const BASS_HIGHLIGHT_HZ = [20, 250] as const;
+/** The Scale Finder's frequency table runs from octave 0 to octave 8. */
+export const FREQUENCY_TABLE_OCTAVES = [0, 8] as const;
+/** Frequencies the Scale Finder accepts, in Hz: below this is too low to hear as a note, above it too high to matter. */
+export const FINDER_HZ_RANGE = [8, 20000] as const;
+/** Scale groups shown before "Show all". */
+export const FINDER_GROUPS_SHOWN = 6;
+/** With fewer notes than this entered, the Scale Finder says lots of scales fit. */
+export const FINDER_FEW_NOTES = 4;
 /** "All but one note" near matches are only offered for scales at least this common (1 = most common)… */
 export const NEAR_MATCH_MAX_COMMONNESS = 2;
 /** …and once this many notes are entered; with fewer, plenty of scales fit exactly. */
