@@ -71,7 +71,7 @@ src/
     screens/     # Start, Home, LevelSelect, Round, Result, Review, Drill, Daily, Explore, ScaleFinder, ScaleGuide, Stats
 ```
 
-Milestone 0 has `constants.ts`, `storage/`, `ui/components/UpdatePrompt.tsx` and `ui/screens/Home.tsx`.
+Built so far: `constants.ts`, `storage/`, `ui/components/UpdatePrompt.tsx` and `ui/screens/Home.tsx` (Milestone 0), and `theory/` (Milestone 1, §5).
 
 Rules, in the same spirit as Dial In:
 - `theory/`, `exercises/` and `srs/` never import React or touch the DOM.
@@ -82,16 +82,27 @@ Rules, in the same spirit as Dial In:
 
 ## 5. Theory engine (`src/theory/`)
 
-- **Notes** as letter, accidental and octave, because spelling matters (E♭ and D♯ are the same key but different notes). Pitch class and MIDI number.
-- **Intervals** as quality and number (m3, P5, A4, d5) with semitones. The interval between two spelled notes; transposing a spelled note by an interval.
-- **Chords** as interval formulas from the root: major, minor, diminished, augmented, sus2, sus4, 6, m6, 7, maj7, m7, m7♭5, dim7, add9 and more later. Inversions and voicings.
-- **Scales and modes**: major, the three minors, the modes, pentatonics, blues.
-- **Keys**: signatures, the circle of fifths, diatonic chords, Roman numerals with quality (ii, V7, vii°), relative and parallel keys.
-- **Naming**: notes in, every reasonable chord name out (C, E, G, A is both C6 and Am7/C). Explore and the "play anything" answers need it.
-- **Frequencies**: note to frequency and back for any A4 reference (440 Hz by default), the nearest note and how many cents off a frequency is, and whether one frequency is a whole-number harmonic of another (§14.1).
-- **Scale matching**: a set of pitch classes, and optionally a home note, in; the scales that contain them out, ranked and grouped (§14.1).
+Written in-house (Milestone 1): it's the heart of the app and not big. **Tonal** is a dev dependency, used only as an answer key in `oracle.test.ts`. That file checks, on all 21 natural, sharp and flat roots: every note's MIDI number and frequency, the interval between every pair of notes, every transposition, every chord type and scale, key signatures, the chords of major and minor keys (triads and sevenths, natural and harmonic minor), numeral roots, and the chord names for every inversion of every chord type.
 
-Written in-house: it's the heart of the app and not big. Tonal is a dev dependency, used only as a test oracle.
+| Module | What |
+| --- | --- |
+| `notes.ts` | Spelled notes (`Note`: a letter and an accidental) and pitches (`Pitch`: plus an octave; C4 is middle C, MIDI 60), because spelling matters (E♭ and D♯ are the same key but different notes). Reading ("Eb", "E♭", "F#4"), Unicode text for the screen and ASCII for ids, spoken names ("E flat"), pitch classes, and 12-bit sets of pitch classes |
+| `intervals.ts` | Intervals as number and quality (m3, P5, A4, d5, up to doubly augmented or diminished), their size in semitones, names in words ("minor 3rd"), scale-degree labels (♭3, ♯4), the interval between two spelled notes, and transposing |
+| `chords.ts` | 22 chord types as interval recipes from the root, each with a name in words, a symbol and a Roman-numeral ending: major, minor, 7, m7, maj7, 5, sus4, sus2, dim, aug, 6, m6, add9, madd9, m7♭5, dim7, 7sus4, 9, maj9, m9, m(maj7) and maj7♯5. Building, symbols, names, voicings and inversions |
+| `scales.ts` | 13 scales and modes (major, the three minors, the other five modes, both pentatonics, blues and major blues), each with how common it is; building, names and degree labels |
+| `keys.ts` | Key signatures, the line and circle of fifths, relative and parallel keys, and the chords of any seven-note scale with their numerals |
+| `numerals.ts` | Roman numerals with quality (ii, V7, vii°, ♭VII): reading and writing them, the chord a numeral stands for in a key and back, and progressions ("I–V–vi–IV") |
+| `naming.ts` | Keys in, every reasonable chord name out, best first (C, E, G, A is C6, then Am7/C); and whether what's played is one note, an interval or a chord, for Explore |
+| `frequency.ts` | Note to frequency and back for any A4 reference (440 Hz by default), the nearest note and how many cents off, harmonics of a lower frequency, and a suggested A4 when every frequency is off by the same amount (§14.1) |
+| `scaleMatch.ts` | The Scale Finder's matching: groups of scales that contain every note entered, and common scales that miss one (§14.1) |
+
+How it spells and ranks things:
+- **Spelling comes from intervals**, so every note is spelled for its job in the chord or scale: C augmented is C E G♯, and F major has B♭.
+- **When nothing gives a spelling** (keys tapped on the keyboard), a root gets whichever of its sharp or flat names gives the chord or scale fewer accidentals: D♭ major, C♯ minor. Ties go to flats: G♭ major, E♭ minor. A slash chord's bass is spelled as the chord spells it, unless a plainer spelling exists (Eaug/C, not Eaug/B♯).
+- **Double sharps and flats** show as ♯♯ and ♭♭, because many phone fonts can't show 𝄪 and 𝄫.
+- **Chord names** that have the bass as the root come first, then the more common chord types, in the order of `CHORD_TYPES`.
+- **Between two notes**, an interval goes up to the next note of that name: E to C is a minor 6th, and C to C♭ is a diminished octave.
+- **Numerals** count against the major scale in every key and mode (§19).
 
 ## 6. Sound (`src/audio/`)
 
@@ -175,7 +186,7 @@ Chords come early, at level 3, because building them is the fun part. Key signat
 
 1. **Chords and Colour**: inversions, sus2 and sus4, seventh chords, add9, hearing each, simple voice leading
 2. **Minor Keys and Modes**: the three minors, relative and parallel keys, each mode by its colour note (Dorian's ♮6, Phrygian's ♭2, Lydian's ♯4, Mixolydian's ♭7), hearing modes over a drone
-3. **Electronic and Bass Music**: minor-key loops (i–VI–III–VII and friends), Phrygian and harmonic-minor colour, fifths and power chords, following the root with a bassline, chord stabs, "build a four-chord loop in this key"
+3. **Electronic and Bass Music**: minor-key loops (i–♭VI–♭III–♭VII and friends), Phrygian and harmonic-minor colour, fifths and power chords, following the root with a bassline, chord stabs, "build a four-chord loop in this key"
 4. Later: jazz harmony, pentatonics and blues, reading notation, rhythm
 
 ### 9.4 Where you start: beginners and skipping ahead
@@ -322,6 +333,9 @@ Build in order. Each milestone ends with `npm test` and `npm run build` passing,
 | Beginner defaults | Note names shown, enharmonics accepted up to level 9, no visible clock in Learn, plain words before terms |
 | Main mechanic | Building chords on the keyboard (`spell`, `change`, `fix`, `progression`), with help that fades (§8) |
 | Theory library | Our own engine; Tonal as a dev-only test oracle |
+| Numerals in minor keys and modes | **Counted against the major scale**: a minor key's chords are i, ii°, ♭III, iv, v, ♭VI and ♭VII. One rule for every key, mode and borrowed chord, as in pop and producer theory (textbooks often write VI and VII in minor instead) |
+| Chord symbols | **Spelled out**: Cdim, Caug, Cm7♭5, easier for beginners to read. Roman numerals still use ° and + (vii°, ♭III+) |
+| Octave numbers | **Middle C is C4** (scientific pitch), as in Dial In and most analysers and tuners. A setting for DAW numbering can come later (§20) |
 | Tools | **Scale Finder** and **Scale Guide**, linked to each other, in Milestone 3 (§14) |
 | Repo and hosting | github.com/BrendanAuri/keyed-in (public), `main` branch, deployed to brendanauri.github.io/keyed-in/ |
 
@@ -344,6 +358,7 @@ Settle each at the milestone that needs it. The first option is the recommendati
 - **Scale Finder audio input** (§14.1).
 - **Progression export**: copy as text, or a MIDI file for a DAW (§14.2).
 - **Progression sketchpad**: pick numerals in a key and loop them, freely, beyond the Scale Guide's list. Useful for writing bass music.
+- **DAW octave numbers**: a setting to show octaves as your DAW does. Ableton, Logic and Cubase call middle C "C3", and FL Studio calls it "C5". Matters most in the Scale Finder's frequency table.
 
 ## 21. Background: what this is built on
 
