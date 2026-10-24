@@ -1,6 +1,6 @@
 # Keyed In
 
-A browser/PWA game for learning chords, scales and the theory around them, made for absolute beginners: name it, build it on the keyboard, hear it. Tools alongside (Explore, Scale Finder, Scale Guide) make it useful when writing music. A sibling of Dial In (`../Dial In`, live at https://brendanauri.github.io/dial-in/). This app will be live at https://brendanauri.github.io/keyed-in/.
+A browser/PWA game for learning chords, scales and the theory around them, made for absolute beginners: name it, build it on the keyboard, hear it. Tools alongside (Explore, Scale Finder, Scale Guide) make it useful when writing music. A sibling of Dial In (`../Dial In`, live at https://brendanauri.github.io/dial-in/). This app is live at https://brendanauri.github.io/keyed-in/.
 
 **Start here**: [docs/handoff.md](docs/handoff.md) says where things stand, what's untested, which decisions are waiting and what's next. [SPEC.md](SPEC.md) is the design source of truth; keep it up to date with every change. [docs/plan.md](docs/plan.md) is the original plan, kept for its research and sources.
 
@@ -19,18 +19,20 @@ npm run icons      # redraw the app icons
 ## Conventions (SPEC §4 and §18)
 
 - TypeScript strict, no `any`. No magic numbers outside `src/constants.ts` (small named constants at the top of a module are fine).
-- `theory/`, `exercises/` and `srs/` are pure TypeScript: no React, no DOM.
+- `theory/`, `tools/`, `exercises/` and `srs/` are pure TypeScript: no React, no DOM. Screens keep their logic in pure helpers under `ui/` (like `explore.ts` and `question.ts`) so it can be tested.
 - `content/` is plain, JSON-serialisable data. Nothing outside it names a specific pack or level.
 - Every question comes from a seed. Once dailies ship, they're fingerprinted in a stability test: don't re-record a fingerprint to make a test pass.
 - Storage keys come from `storageKey()` and start with `keyedin.`: this app shares the brendanauri.github.io origin, and its localStorage, with Dial In (`dialin.`).
 - Ask before adding a dependency not listed in SPEC §3.
 - On-screen text is for absolute beginners: plain words, and no term before an intro has shown what it means.
+- In questions, the keyboard never moves while it's being played (anything that comes and goes sits below it), and no key is coloured without being chosen (SPEC §8).
 - Match the surrounding code: comments that say why, plain names, short documented functions.
 
 ## Workflow
 
 - Milestone routine: build it; `npm test` and `npm run build` pass; check it in the browser at phone widths (320, 375 and 414 px) and on desktop; update SPEC.md and docs/handoff.md; commit with a `Co-Authored-By` line.
-- **Pushing to `main` deploys the live site, so push only when asked.** After pushing, confirm the deploy by watching the bundle name in the live `index.html` change (about a minute), not by polling the GitHub API.
+- **Pushing to `main` deploys the live site, so push only when asked.** After pushing, confirm the deploy by watching the bundle name in the live `index.html` change (about a minute), not by polling the GitHub API. docs/handoff.md ("How we've been working") has the steps.
+- In the browser pane, drive the app with JavaScript (`element.click()`, computer-key `KeyboardEvent`s) and measure layout with JavaScript; coordinate clicks and screenshots are unreliable when the pane is hidden or a phone size is set. Tap to start needs one real click. docs/handoff.md ("Lessons learned") has the details.
 - Settle open questions first, as short multiple-choice questions with the recommendation first.
 - End each milestone with a summary of what was built and how to run it, and a recommended next step.
 
