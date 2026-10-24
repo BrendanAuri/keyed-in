@@ -379,7 +379,7 @@ Keys, each versioned:
 
 Build in order. Each milestone ends with `npm test` and `npm run build` passing, a check in the browser at phone widths, SPEC.md and docs/handoff.md updated, and a commit.
 
-**Status (2026-10-24)**: Milestones 0 to 4 are done and live, with two Drill fixes after phone testing. Milestone 5 is built and committed locally, not pushed yet. Milestone 6 is next.
+**Status (2026-10-24)**: Milestones 0 to 4 are done and live, with two Drill fixes after phone testing. Milestone 5 (packs and Learn) is done and live. Milestone 6 is next.
 
 | # | Milestone | What |
 | --- | --- | --- |

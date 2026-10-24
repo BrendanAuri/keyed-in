@@ -6,8 +6,8 @@ Last updated 2026-10-24, after Milestone 5 (packs and Learn). Read this first, t
 
 - **Live site**: https://brendanauri.github.io/keyed-in/ (GitHub Pages, deployed by GitHub Actions on every push to `main`, live about 40–50 seconds after a push)
 - **Repo**: https://github.com/BrendanAuri/keyed-in (public)
-- **Live now**: Milestones 0 to 4 plus the two Drill fixes, bundle `index-CqpFbcG6.js`.
-- **Milestone 5 is committed locally, not pushed.** Push when you want it live.
+- **Live now**: Milestones 0 to 5, bundle `index-zoy-f--A.js` (live about 40 seconds after the push; checked on the live site, where a tab with the old version showed the "new version is ready" prompt and Reload brought in Learn).
+- **Everything is pushed**, including this handoff, so a session on another device or in the cloud starts from the same place.
 - **Health**: 268 tests in 30 files pass, including the Tonal checks (`src/theory/oracle.test.ts`), a sweep of 300 questions per type (`src/exercises/questions.test.ts`), and the content checks over every shipped pack (`src/game/validation.test.ts`). `npm run build` is clean.
 - **Design**: [SPEC.md](../SPEC.md) is the source of truth: §17 milestones, §19 settled and open decisions, §20 the idea backlog. [plan.md](plan.md) is the original plan, kept for the app survey, research and sources. [setup.md](setup.md) was the one-off setup guide.
 
