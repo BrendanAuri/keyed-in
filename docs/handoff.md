@@ -7,7 +7,7 @@ Last updated 2026-10-24, at the end of the first working session. Read this firs
 - **Live site**: https://brendanauri.github.io/keyed-in/ (GitHub Pages, deployed by GitHub Actions on every push to `main`, live about 40–50 seconds after a push)
 - **Repo**: https://github.com/BrendanAuri/keyed-in (public)
 - **Live now**: Milestones 0 to 4 plus the two Drill fixes, bundle `index-CqpFbcG6.js`.
-- **Not pushed**: only docs commits (this handoff and the session wrap-up). Pushing them redeploys the same app; there's no rush.
+- **Everything is pushed**, including this handoff, so a session on another device or in the cloud starts from the same place.
 - **Health**: 227 tests in 26 files pass, including the Tonal checks (`src/theory/oracle.test.ts`) and a sweep of 300 questions per type (`src/exercises/questions.test.ts`). `npm run build` is clean.
 - **Design**: [SPEC.md](../SPEC.md) is the source of truth: §17 milestones, §19 settled and open decisions, §20 the idea backlog. [plan.md](plan.md) is the original plan, kept for the app survey, research and sources. [setup.md](setup.md) was the one-off setup guide.
 
@@ -79,7 +79,7 @@ npm run preview    # http://localhost:4174, with the service worker
 ```
 
 - **Pushing to `main` deploys the live site**, so it's done only when asked.
-- **Checking a deploy**: watch the bundle name in the live `index.html` change. Don't poll the GitHub API, which limits unauthenticated calls to about 60 an hour.
+- **Checking a deploy**: watch the bundle name in the live `index.html` change. Don't poll the GitHub API, which limits unauthenticated calls to about 60 an hour. A docs-only push rebuilds the identical app, so the bundle name stays the same; watch the page's `Last-Modified` header instead (`curl -sI`), which GitHub Pages moves on every deploy.
 
 ## Lessons learned
 
