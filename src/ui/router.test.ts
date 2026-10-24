@@ -17,9 +17,17 @@ describe('routes', () => {
     expect(parseRoute('#/guide/%E0%A4%A/major')).toEqual({ name: 'guide', root: '%E0%A4%A', scale: 'major' });
   });
 
+  it('opens a level by its pack and level, or the level list', () => {
+    expect(parseRoute('#/learn/foundations/keyboard')).toEqual({ name: 'learn', pack: 'foundations', level: 'keyboard' });
+    expect(parseRoute('#/learn/foundations')).toEqual({ name: 'learn' });
+  });
+
   it('round-trips every route', () => {
     const routes: Route[] = [
       { name: 'home' },
+      { name: 'learn' },
+      { name: 'learn', pack: 'foundations', level: 'minor-chords' },
+      { name: 'placement' },
       { name: 'explore' },
       { name: 'finder' },
       { name: 'drill' },

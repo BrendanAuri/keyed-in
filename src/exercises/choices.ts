@@ -44,7 +44,10 @@ function base(fields: Pick<ChoiceQuestion, 'type' | 'item' | 'prompt' | 'choices
 export function generateIdentify(spec: QuestionSpec, rng: Rng): ChoiceQuestion {
   const root = pickRoot(spec, rng);
   if (spec.about === 'notes') {
-    const { options, correct } = choicesFrom(rng, pitchClass(root), Array.from({ length: SEMITONES_PER_OCTAVE }, (_, i) => i));
+    // Choices come from the spec's roots when it has a few, so a level on the white keys only offers white keys.
+    const fromRoots = [...new Set((spec.roots ?? []).map((r) => pitchClass(rootNote(r))))];
+    const pool = fromRoots.length > 1 ? fromRoots : Array.from({ length: SEMITONES_PER_OCTAVE }, (_, i) => i);
+    const { options, correct } = choicesFrom(rng, pitchClass(root), pool);
     return base({
       type: 'identify',
       item: `identify:note@${formatNote(root, 'ascii')}`,
@@ -70,6 +73,7 @@ export function generateIdentify(spec: QuestionSpec, rng: Rng): ChoiceQuestion {
     });
   }
   const chordTypeId = pick(rng, spec.set);
+  if (spec.choices === 'root') return identifyRoot(spec, rng, root, chordTypeId);
   const { options, correct } = choicesFrom(rng, chordTypeId, chordPool(spec.set));
   return base({
     type: 'identify',
@@ -79,6 +83,26 @@ export function generateIdentify(spec: QuestionSpec, rng: Rng): ChoiceQuestion {
     correct,
     choiceTargets: options.map((t) => ({ kind: 'chord', root, chordTypeId: t })),
     shown: voiceTarget({ kind: 'chord', root, chordTypeId }, QUESTION_OCTAVE),
+  });
+}
+
+/**
+ * One chord type on different roots: "Which chord is lit?" with C major, F
+ * major and so on. Finding the root is the question, so the keys' names are hidden.
+ */
+function identifyRoot(spec: QuestionSpec, rng: Rng, root: Note, chordTypeId: string): ChoiceQuestion {
+  const others = new Map<number, Note>();
+  for (const r of (spec.roots ?? COMMON_ROOTS).map(rootNote)) if (pitchClass(r) !== pitchClass(root) && !others.has(pitchClass(r))) others.set(pitchClass(r), r);
+  const { options, correct } = choicesFrom(rng, root, [...others.values()]);
+  return base({
+    type: 'identify',
+    item: `identify:${chordTypeId}-root@${formatNote(root, 'ascii')}`,
+    prompt: 'Which chord is lit?',
+    choices: options.map((r) => chordName(r, chordTypeId)),
+    correct,
+    choiceTargets: options.map((r) => ({ kind: 'chord', root: r, chordTypeId })),
+    shown: voiceTarget({ kind: 'chord', root, chordTypeId }, QUESTION_OCTAVE),
+    hideNames: true,
   });
 }
 
@@ -237,7 +261,11 @@ export function choiceFeedback(q: ChoiceQuestion, index: number, result: Result)
   if (q.explanation) lines.push(q.explanation);
   if (answerTarget?.kind === 'chord' && q.type === 'identify') lines.push(`${chordName(answerTarget.root, answerTarget.chordTypeId)} is ${listNotes(targetNotes(answerTarget))}.`);
   if (!result.correct && answerTarget?.kind === 'chord' && chosenTarget?.kind === 'chord') {
-    lines.push(...differenceLines(answerTarget.root, chosenTarget.chordTypeId, answerTarget.chordTypeId));
+    if (pitchClass(answerTarget.root) !== pitchClass(chosenTarget.root)) {
+      lines.push(`A chord is named after its root, which is the lowest lit key here: ${formatNote(answerTarget.root)}.`);
+    } else {
+      lines.push(...differenceLines(answerTarget.root, chosenTarget.chordTypeId, answerTarget.chordTypeId));
+    }
   }
   if (!result.correct && q.type === 'hearQuality') lines.push('Press A-B to hear the two back to back.');
   return { headline: result.correct ? 'Yes, that\'s it.' : 'Not quite.', lines, yours, correct };

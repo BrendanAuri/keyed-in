@@ -5,6 +5,9 @@ import { useRoute, type Navigate, type Route } from './ui/router';
 import { Drill } from './ui/screens/Drill';
 import { Explore } from './ui/screens/Explore';
 import { Home } from './ui/screens/Home';
+import { Learn } from './ui/screens/Learn';
+import { Level } from './ui/screens/Level';
+import { Placement } from './ui/screens/Placement';
 import { ScaleFinder } from './ui/screens/ScaleFinder';
 import { ScaleGuide } from './ui/screens/ScaleGuide';
 import { Start } from './ui/screens/Start';
@@ -69,6 +72,10 @@ function Screen({ route, navigate, audio }: { readonly route: Route; readonly na
   switch (route.name) {
     case 'home':
       return <Home navigate={navigate} />;
+    case 'learn':
+      return route.pack && route.level ? <Level audio={audio} navigate={navigate} packId={route.pack} levelId={route.level} /> : <Learn navigate={navigate} />;
+    case 'placement':
+      return <Placement audio={audio} navigate={navigate} />;
     case 'drill':
       return <Drill audio={audio} />;
     case 'explore':

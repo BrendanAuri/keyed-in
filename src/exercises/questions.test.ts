@@ -9,9 +9,14 @@ import { voiceTarget } from './targets';
 import { isKeysQuestion, type QuestionSpec } from './types';
 
 /** Every type with every subject it takes and its whole set, to make sure any question can be answered. */
-const ALL_SPECS: QuestionSpec[] = EXERCISES.flatMap((info) =>
-  info.abouts.map((about) => ({ type: info.type, about, set: setOptions(info.type, about).map((o) => o.id), guide: 'full' as const })),
-);
+const ALL_SPECS: QuestionSpec[] = [
+  ...EXERCISES.flatMap((info) =>
+    info.abouts.map((about) => ({ type: info.type, about, set: setOptions(info.type, about).map((o) => o.id), guide: 'full' as const })),
+  ),
+  // Naming one chord type by its root, and naming notes from a few roots.
+  { type: 'identify', about: 'chords', set: ['major', 'minor'], choices: 'root' },
+  { type: 'identify', about: 'notes', set: [], roots: ['C', 'D', 'E', 'F', 'G', 'A', 'B'] },
+];
 
 describe('every question', () => {
   it('accepts its own right answer, and gives feedback for it', () => {
@@ -34,6 +39,26 @@ describe('every question', () => {
           if (q.choiceTargets) expect(choiceKeys(q, q.correct).length, label).toBeGreaterThan(0);
         }
       }
+    }
+  });
+
+  it('names a chord by its root when asked to, hiding the names that would give it away', () => {
+    for (let seed = 0; seed < 50; seed++) {
+      const q = generateQuestion({ type: 'identify', about: 'chords', set: ['major'], choices: 'root' }, createRng(seed));
+      if (isKeysQuestion(q)) throw new Error('expected buttons');
+      expect(q.hideNames).toBe(true);
+      expect(q.choices.every((c) => c.endsWith(' major'))).toBe(true);
+      const wrong = (q.correct + 1) % q.choices.length;
+      const lines = feedbackFor(q, { kind: 'choice', index: wrong }, checkAnswer(q, { kind: 'choice', index: wrong })).lines;
+      expect(lines.some((l) => l.includes('named after its root'))).toBe(true);
+    }
+  });
+
+  it('offers only the spec’s own notes when naming a note from a few roots', () => {
+    for (let seed = 0; seed < 50; seed++) {
+      const q = generateQuestion({ type: 'identify', about: 'notes', set: [], roots: ['C', 'D', 'E', 'F', 'G', 'A', 'B'] }, createRng(seed));
+      if (isKeysQuestion(q)) throw new Error('expected buttons');
+      expect(q.choices.every((c) => /^[A-G]$/.test(c)), q.choices.join()).toBe(true);
     }
   });
 

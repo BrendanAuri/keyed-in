@@ -119,6 +119,20 @@ export const TIME_LIMITS: Readonly<Record<string, { readonly fast: number; reado
 /** Gap between your answer and the right one when they're played A-B, in seconds. */
 export const AB_GAP_SECONDS = 0.35;
 
+// ── Learn (SPEC §9) ──────────────────────────────────────────────────────
+
+/** Questions in a level's round. */
+export const ROUND_QUESTIONS = 10;
+/** Share of a round that goes back over earlier levels; the rest is on the level's new items. */
+export const REVIEW_SHARE = 0.3;
+/** A round's first few questions are always on the level's new items, before earlier ones mix in. */
+export const NEW_ITEMS_FIRST = 2;
+/** Accuracy (%) for one, two and three stars. One star passes. */
+export const STAR_THRESHOLDS = [70, 85, 95] as const;
+export const PASS_MARK = STAR_THRESHOLDS[0];
+/** The placement check stops after this many misses. */
+export const PLACEMENT_MAX_MISSES = 2;
+
 // ── Keyboard (SPEC §7) ───────────────────────────────────────────────────
 
 /** Octave of the keyboard's lowest C when it first opens on a phone (C4 is middle C); wider screens start one lower. */

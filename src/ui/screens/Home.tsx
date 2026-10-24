@@ -1,3 +1,7 @@
+import { ROUND_QUESTIONS } from '../../constants';
+import { levelLabel } from '../../game/packs';
+import { continueLevel } from '../../game/progress';
+import { useProgress } from '../progress';
 import type { Navigate, Route } from '../router';
 
 const DIAL_IN_URL = 'https://brendanauri.github.io/dial-in/';
@@ -11,7 +15,7 @@ interface Feature {
 
 /** The game modes (SPEC §1), in plain words for someone who's new to music. */
 const MODES: readonly Feature[] = [
-  { title: 'Learn', description: 'Short levels that start from the very beginning: find the notes, then build your first chords.' },
+  { title: 'Learn', description: 'Short levels that start from the very beginning: find the notes, then build your first chords.', route: { name: 'learn' } },
   { title: 'Review', description: "A few minutes a day. What you've learned comes back just before you'd forget it." },
   { title: 'Drill', description: 'Endless practice on whatever you choose, like just major against minor.', route: { name: 'drill' } },
   { title: 'Daily', description: 'The same ten questions for everyone each day, with a streak to keep.' },
@@ -36,11 +40,28 @@ const TOOLS: readonly Feature[] = [
   },
 ];
 
-/** What the app holds: modes and tools, those still to come marked "Coming soon". */
+/** What the app holds: where to continue, then modes and tools, those still to come marked "Coming soon". */
 export function Home({ navigate }: { readonly navigate: Navigate }) {
+  const progress = useProgress();
+  const resume = continueLevel(progress);
   return (
     <main className="screen home">
       <p className="tagline">Learn chords, scales and the theory behind them, starting from the very beginning.</p>
+
+      {resume && (
+        <section className="card continue-card" aria-labelledby="continue-title">
+          <h2 id="continue-title" className="card-kicker">
+            Continue
+          </h2>
+          <p className="card-title">
+            {levelLabel(resume.ref)}: {resume.ref.level.title}
+          </p>
+          <p className="card-note">{resume.run ? `${resume.run.results.length} of ${ROUND_QUESTIONS} questions answered.` : resume.ref.level.summary}</p>
+          <button type="button" className="button primary" onClick={() => navigate({ name: 'learn', pack: resume.ref.pack.id, level: resume.ref.level.id })}>
+            {resume.run ? 'Pick up the round' : 'Continue'}
+          </button>
+        </section>
+      )}
 
       <h2 className="section-title">Play</h2>
       <FeatureList features={MODES} navigate={navigate} />

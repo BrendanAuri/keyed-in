@@ -17,6 +17,8 @@ interface QuestionViewProps {
   readonly showKeyHints: boolean;
   /** Two octaves fit on screen. */
   readonly wide: boolean;
+  /** As soon as it's answered, before the feedback: a round saves the answer here, so leaving can't undo it. */
+  readonly onAnswer?: (result: Result) => void;
   /** Moving on, with how it went. */
   readonly onNext: (result: Result, rating: Rating) => void;
 }
@@ -52,7 +54,7 @@ const noOctaveChange = (): void => undefined;
  * buttons, and then feedback with Yours, Correct and A-B. On a computer,
  * A to K play keys, 1 to 4 pick an answer, and Enter checks or moves on.
  */
-export function QuestionView({ question: q, instrument, showNames, showKeyHints, wide, onNext }: QuestionViewProps) {
+export function QuestionView({ question: q, instrument, showNames, showKeyHints, wide, onAnswer, onNext }: QuestionViewProps) {
   const { play, noteOn, noteOff, pressed } = instrument;
   const keysQ = isKeysQuestion(q) ? q : null;
   const choiceQ = isKeysQuestion(q) ? null : q;
@@ -75,6 +77,7 @@ export function QuestionView({ question: q, instrument, showNames, showKeyHints,
     const result = checkAnswer(q, answer);
     setAnswered({ answer, result, feedback: feedbackFor(q, answer, result), seconds: (performance.now() - startedAt.current) / 1000 });
     setTip(null);
+    onAnswer?.(result);
   }
 
   function next(): void {

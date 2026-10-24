@@ -72,7 +72,7 @@ src/
     screens/     # Start, Home, LevelSelect, Round, Result, Review, Drill, Daily, Explore, ScaleFinder, ScaleGuide, Stats
 ```
 
-Built so far: `constants.ts`, `storage/`, `ui/components/UpdatePrompt.tsx` and `ui/screens/Home.tsx` (Milestone 0); `theory/` (Milestone 1, §5); `audio/`, `game/settings.ts`, the router, the Keyboard, Segmented and NotePicker components, and the Start and Explore screens (Milestone 2, §6, §7, §13); `content/feel.ts`, `tools/` (pure TypeScript for the two tools, like `theory/`), `ui/instrument.ts`, the CircleOfFifths and KeyboardBar components, and the ScaleFinder and ScaleGuide screens (Milestone 3, §14); `exercises/`, `game/rng.ts` (from Dial In) and `game/drill.ts`, `ui/question.ts`, the QuestionView component and the Drill screen (Milestone 4, §8, §11).
+Built so far: `constants.ts`, `storage/`, `ui/components/UpdatePrompt.tsx` and `ui/screens/Home.tsx` (Milestone 0); `theory/` (Milestone 1, §5); `audio/`, `game/settings.ts`, the router, the Keyboard, Segmented and NotePicker components, and the Start and Explore screens (Milestone 2, §6, §7, §13); `content/feel.ts`, `tools/` (pure TypeScript for the two tools, like `theory/`), `ui/instrument.ts`, the CircleOfFifths and KeyboardBar components, and the ScaleFinder and ScaleGuide screens (Milestone 3, §14); `exercises/`, `game/rng.ts` (from Dial In) and `game/drill.ts`, `ui/question.ts`, the QuestionView component and the Drill screen (Milestone 4, §8, §11); `content/schema.ts`, `content/packs/foundations.ts` and `content/index.ts`, `game/packs.ts`, `game/validation.ts`, `game/progress.ts`, `game/progressStore.ts`, `game/round.ts` and `game/placement.ts`, `ui/intro.ts` and `ui/progress.ts`, the IntroView and Stars components, and the Learn, Level and Placement screens (Milestone 5, §9).
 
 Rules, in the same spirit as Dial In:
 - `theory/`, `tools/`, `exercises/` and `srs/` never import React or touch the DOM.
@@ -172,6 +172,7 @@ Nothing is ever lit without being chosen: a key that's coloured but not part of 
 - **The keyboard never moves during a question.** Above it is only what stays put (the prompt, and Play again for ear questions); the Check, Clear and Show a hint buttons, the hint or recipe, wrong-key tips and the feedback all appear below it.
 - **Echo** gives its starting note already chosen ("Here's C, already chosen. Listen, then add the other note you hear.") and never asks for an octave, which the chosen note alone would answer.
 - **Grading** is `grading.ts`'s `rate`; full help counts as a hint, so a right answer with it is Hard. Nothing stores the rating yet; Review (Milestone 6) will.
+- **Naming by root** (Milestone 5): a spec with `choices: 'root'` names one chord type on different roots ("Which chord is lit?": C major, F major, A♭ major...), with the names off the keys, for a level that has taught only major. A wrong pick says the chord is named after its root, the lowest lit key. Drill uses it when one chord type is picked for Name it. Naming a note with `roots` given offers only those notes, so level 1 offers only white keys.
 - **Items** for review are named like `spell:minor@F#`, `change:major>minor@C`, `echo:minor` and `hearQuality:minor` (ear items per concept, the root random each time).
 - A test makes 300 questions of every type and subject with every item in its set, and checks each one accepts its own right answer, and that change and fix questions don't start out already right.
 
@@ -224,6 +225,30 @@ Chords come early, at level 3, because building them is the fun part. Key signat
 - Every locked level has **Test out**: one round with no intro. Pass it to unlock that level and everything before it.
 - Settings has **Show note names** (on by default) and **Replay intros**.
 
+### 9.5 As built (Milestone 5)
+
+**Packs** (`content/schema.ts`): a pack has an id, title, description, a version and its levels, plus an optional "coming soon" line. A level has an id, title, one-line summary, an intro, its questions (each a question spec with a weight), and optionally its placement questions. Progress is keyed "packId/levelId", so ids never change. A pack's version goes up whenever its levels or questions change, because a round left halfway is made again from its seed. `game/validation.ts` checks every shipped pack in a test: ids, intro keys that exist, and every spec against `exercises/catalogue.ts` (type, subject, set, roots, help, and that it makes questions); another test makes 100 questions from every spec and checks each accepts its own right answer.
+
+**Intros are guided steps** (settled §19), each with a short text: *read*; *see* (lit on the keyboard with its names, and played as the step opens, with Play and, for chords, One at a time); *hear* (a button per sound that plays it and lights it, and One then the other for two); and *your turn* (choose the keys yourself: nothing is lit, given keys start chosen, it can play the target first, and it can hide the letters). A your-turn step checks as you tap, by pitch class: a wrong key says why ("F isn't in D major", then the recipe; "That's D. C is the white key just left of the two black keys."), and the right notes play the chord and say "Yes, that's it." Show me chooses the keys for you. Next waits until the step is done. The keyboard keeps one size for the whole intro, from middle C, and within a step only what's below it changes. Every intro ends with a read step that says what the round will ask. Skip intro is always there, and a level's page has See the intro again (this is **Replay intros**; there's no Settings screen yet).
+
+**Rounds** (`game/round.ts`): ten questions from one seed. Seven are the level's own, shared out by weight (largest remainder, so every kind gets its share), with full-help questions first; three go back over earlier levels (an earlier level at random, then one of its questions by weight) with no more than a hint, never in the first two places. The first level has no earlier ones, so it's all its own. A round avoids asking the same item twice, and never twice in a row when that can be helped. A round shows "Question 4 of 10", "3 of 3 right so far" (counted up to the question on screen, so the line above the keyboard never changes while it's answered), a dot per question, and Leave. Each answer is saved as soon as it's checked, so leaving can't take it back; Continue picks up at the next question, after a reload too.
+
+**Stars and unlocks** (`game/progress.ts`): 70% passes with one star, 85% gives two and 95% three (7, 9 and 10 of 10). A level keeps its best round and never loses a pass. A level is open when it's the first, when it's passed, or when the one before it is passed. The result says how it went and offers Next level, Play again (or Try again) and All levels.
+
+**Learn** (`#/learn`) shows each pack as one list of levels (settled §19), with how many are passed and stars out of 30, and each level's number, title, summary and status: its stars, Passed (passed without playing, so no stars yet), Next, Unfinished or Locked. Foundations says four more levels are coming. A level's page (`#/learn/foundations/minor-chords`) shows its best round and what Start does, says when starting it would end an unfinished round on another level (only one round is kept at a time), and for a locked level explains Test out.
+
+**Where you start**: the choice between New to music and I know some basics is asked the first time Learn opens, not at the app's first launch, so someone who came for the tools isn't stopped. New to music opens level 1.
+
+**The placement check** (`#/placement`, `game/placement.ts`): each level's placement questions (two per level, no help) for levels 1 to 9, in order, with "Level 3 · question 5 of 18" and Stop here. It ends after two misses. Every level whose questions were all right is passed with no stars, even if an earlier one wasn't, and the earliest open level that isn't passed comes next. It can be taken again from Learn; it never takes a pass away. Placed levels' items should go into Review once Review exists (Milestone 6).
+
+**Test out**: a locked level's page offers one round of its own ten questions with no intro and no help. Seven right passes it, with stars from that round, and passes every level before it with no stars; fewer leaves it locked. Play again after testing out starts a normal round.
+
+**Foundations 1 to 10** (`content/packs/foundations.ts`), as listed in §9.2, with these choices:
+- Level 1 stays on the white keys (finding notes with a hint or none, and naming lit notes from the white keys). Level 2 adds the black keys by both names, and half and whole steps as facts.
+- Level 3 names major chords by their root, since minor isn't taught until level 4.
+- Level 7 uses the full names major 3rd, perfect 5th and octave, which its intro introduces, and level 8 explains.
+- Level 10 asks key signatures, the notes of a major key, and major scales with no help. Not yet: a question on neighbouring keys of the circle, and checking spelling (answers are still checked by pitch class; the note picker for spelling comes later).
+
 ## 10. Review: the flash-card system (`src/srs/`)
 
 - Scheduled with **FSRS**, the modern spaced-repetition algorithm (Anki has it built in), through the `ts-fsrs` package. Aim for 90% recall. Ratings come from §8's grading, so there are no "how well did you know this?" buttons, except on `sing` cards.
@@ -241,6 +266,7 @@ As built (Milestone 4, `ui/screens/Drill.tsx` and `game/drill.ts`), opened from 
 - **The picker**: what to practise (Build it, Name it, Change one note, Fix it, Hear it, Play it back, Facts), what it's about where there's a choice, which ones (chips; major and minor to start), and for keyboard types how much help (Lots of help, A hint, No help). Every type and item is open until Learn exists; then it narrows to what you've learned, with a way to show everything (SPEC §19).
 - **A run** is one question type with one set, endless, with "7 of 9 right" and End drill. One seed makes the whole run, so it can be replayed, and the same item never comes twice in a row when the set has more than one.
 - Not yet: mixing several types in one run, and remembering the last picks.
+- **What you've learned** (Milestone 5): once a level is passed, the picker offers only the types, subjects, chips and roots passed levels asked (level 1 alone keeps Find a note to the white keys), with Everything to show the rest. Until then everything is open, and it says so.
 
 ## 12. Daily challenge
 
@@ -337,8 +363,8 @@ As built:
 
 - Portrait-first, dark theme, large touch targets. Dial In's look, with its own accent colour (amber, where Dial In is teal), so the two apps are easy to tell apart.
 - **PWA**, as in Dial In: a manifest (standalone, dark theme, 192, 512 and maskable icons, an Apple touch icon and iOS meta tags), everything precached, a "Keyed In now works offline" notice the first time, and "A new version of Keyed In is ready" with **Reload** / **Later**, so an update never interrupts a round. An install card comes in Milestone 9.
-- **Navigation**: Tap to start first (§6), then tabs for Home, Explore, Finder and Guide, with more as screens arrive. Below 520 px wide the tabs take their own row under the title. Screens are hash routes (`#/`, `#/explore`, `#/finder`, `#/guide/<root>/<scale>`), so the back button and reloads keep your place; changing the scale in the guide replaces the address rather than adding to history.
-- **Home**: the modes under **Play** and the tools under **Tools**, as cards, and a card linking to Dial In. Cards that work are outlined in amber and marked "Open" (Explore from Milestone 2, Scale Finder and Scale Guide from Milestone 3, Drill from Milestone 4); the rest say "Coming soon". The game modes open from Home rather than from tabs, so the tabs stay for the tools. From Milestone 5 it also shows where to continue, and later today's daily and how many reviews are due.
+- **Navigation**: Tap to start first (§6), then tabs for Home, Explore, Finder and Guide, with more as screens arrive. Below 520 px wide the tabs take their own row under the title. Screens are hash routes (`#/`, `#/learn`, `#/learn/<pack>/<level>`, `#/placement`, `#/drill`, `#/explore`, `#/finder`, `#/guide/<root>/<scale>`), so the back button and reloads keep your place; changing the scale in the guide replaces the address rather than adding to history.
+- **Home**: the modes under **Play** and the tools under **Tools**, as cards, and a card linking to Dial In. Cards that work are outlined in amber and marked "Open" (Explore from Milestone 2, Scale Finder and Scale Guide from Milestone 3, Drill from Milestone 4); the rest say "Coming soon". The game modes open from Home rather than from tabs, so the tabs stay for the tools. From Milestone 5 Learn is open, and a Continue card at the top goes to the unfinished round ("3 of 10 questions answered", Pick up the round) or, once Learn has begun, the next level. Later it shows today's daily and how many reviews are due.
 
 ## 16. Persistence
 
@@ -346,13 +372,14 @@ All storage goes through `storage/storage.ts`, and every key starts with `keyedi
 
 Keys, each versioned:
 - `keyedin.settings` (Milestone 2, `game/settings.ts`): note names on or off, the sound, and (from Milestone 3) the A4 tuning, 400 to 480 Hz. Missing or unreadable values fall back to the defaults, so settings saved before a field existed still load.
-- Planned: `keyedin.progress` (levels, stars, the run in progress, placement) and `keyedin.review` (an FSRS card per item, confusions), each with a migration stub. Ask for persistent storage on the first progress save.
+- `keyedin.progress` (Milestone 5, `game/progressStore.ts`, version 1): each level's best, stars, pass and rounds played; how Learn was begun (beginner or placed); intros seen; the last level; and the round in progress (its level, the pack version, seed, whether it's a test out, and right or wrong so far). Anything malformed is dropped field by field; a record that can't be read at all is copied to `keyedin.progress.unreadable.<time>` first. Persistent storage is asked for on the first progress save.
+- Planned: `keyedin.review` (an FSRS card per item, confusions), with a migration stub.
 
 ## 17. Milestones
 
 Build in order. Each milestone ends with `npm test` and `npm run build` passing, a check in the browser at phone widths, SPEC.md and docs/handoff.md updated, and a commit.
 
-**Status (2026-10-24)**: Milestones 0 to 4 are done and live, with two Drill fixes after phone testing. Milestone 5 is next.
+**Status (2026-10-24)**: Milestones 0 to 4 are done and live, with two Drill fixes after phone testing. Milestone 5 is built and committed locally, not pushed yet. Milestone 6 is next.
 
 | # | Milestone | What |
 | --- | --- | --- |
@@ -398,6 +425,10 @@ Build in order. Each milestone ends with `npm test` and `npm run build` passing,
 | Answer checking | **By pitch class** (Milestone 4): any octave and any order counts, since keys on a keyboard carry no spelling. Spelling is checked later with the note picker, from the key-signature level on (§9.2) |
 | Drill before Learn | **Everything open** (Milestone 4) until Learn exists; then Drill offers what you've learned, with a way to show everything |
 | Where the modes live | **On Home**, not in the tabs (Milestone 4): the tabs are for the tools, so they stay four at 320 px |
+| What an intro is | **A few guided steps** (Milestone 5): read, see it lit and hear it, compare by ear, then play it yourself, before the round. Ableton Learning Music's play-first lessons rather than a page of text (§9.5) |
+| How Learn shows levels | **One list per pack** (Milestone 5), not chapters: 10 to 14 levels is short enough to scroll on a phone |
+| The placement check | **As §9.4 suggested** (Milestone 5): two questions from each of levels 1 to 9, in order, with no help, ending after two misses; every level answered all right is passed |
+| Leaving a round halfway | **Kept, and picked up later** (Milestone 5), as in Dial In: rounds on a phone get interrupted. One round is kept at a time |
 | Blues scale spelling | **♭5, or ♯4 where ♭5 would need a double flat**: C blues has G♭, E♭ blues has A rather than B♭♭. The same rule covers major blues's ♭3 (G♭ major blues has A rather than B♭♭). Built in Milestone 3 (`scaleSteps` in `scales.ts`), where the degree follows the spelling (E♭ blues shows A as ♯4), and the Tonal check expects it |
 | Tools | **Scale Finder** and **Scale Guide**, linked to each other, in Milestone 3 (§14) |
 | Repo and hosting | github.com/BrendanAuri/keyed-in (public), `main` branch, deployed to brendanauri.github.io/keyed-in/ |

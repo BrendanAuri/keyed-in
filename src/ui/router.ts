@@ -1,6 +1,7 @@
 /**
  * Hash routes, so the browser's back button and reloads keep you where you
- * were: #/ (Home), #/drill, #/explore, #/finder and #/guide, with a scale in the
+ * were: #/ (Home), #/learn, a level (#/learn/foundations/minor-chords),
+ * #/placement, #/drill, #/explore, #/finder and #/guide, with a scale in the
  * guide's address (#/guide/Eb/naturalMinor). More screens join as their
  * milestones land.
  */
@@ -8,6 +9,9 @@ import { useCallback, useSyncExternalStore } from 'react';
 
 export type Route =
   | { readonly name: 'home' }
+  /** A level by its pack and level ids, or the list of levels when there's neither. */
+  | { readonly name: 'learn'; readonly pack?: string; readonly level?: string }
+  | { readonly name: 'placement' }
   | { readonly name: 'explore' }
   | { readonly name: 'finder' }
   | { readonly name: 'drill' }
@@ -17,6 +21,8 @@ export type Route =
 export function parseRoute(hash: string): Route {
   const parts = hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(safeDecode);
   const [first, second, third] = parts;
+  if (first === 'learn') return second && third ? { name: 'learn', pack: second, level: third } : { name: 'learn' };
+  if (first === 'placement') return { name: 'placement' };
   if (first === 'explore') return { name: 'explore' };
   if (first === 'finder') return { name: 'finder' };
   if (first === 'drill') return { name: 'drill' };
@@ -37,6 +43,10 @@ export function routeHash(route: Route): string {
   switch (route.name) {
     case 'home':
       return '#/';
+    case 'learn':
+      return route.pack && route.level ? `#/learn/${e(route.pack)}/${e(route.level)}` : '#/learn';
+    case 'placement':
+      return '#/placement';
     case 'explore':
       return '#/explore';
     case 'finder':

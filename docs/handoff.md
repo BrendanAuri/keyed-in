@@ -1,14 +1,14 @@
 # Handoff: where Keyed In stands
 
-Last updated 2026-10-24, at the end of the first working session. Read this first, then [SPEC.md](../SPEC.md) for anything in detail.
+Last updated 2026-10-24, after Milestone 5 (packs and Learn). Read this first, then [SPEC.md](../SPEC.md) for anything in detail.
 
 ## At a glance
 
 - **Live site**: https://brendanauri.github.io/keyed-in/ (GitHub Pages, deployed by GitHub Actions on every push to `main`, live about 40–50 seconds after a push)
 - **Repo**: https://github.com/BrendanAuri/keyed-in (public)
 - **Live now**: Milestones 0 to 4 plus the two Drill fixes, bundle `index-CqpFbcG6.js`.
-- **Everything is pushed**, including this handoff, so a session on another device or in the cloud starts from the same place.
-- **Health**: 227 tests in 26 files pass, including the Tonal checks (`src/theory/oracle.test.ts`) and a sweep of 300 questions per type (`src/exercises/questions.test.ts`). `npm run build` is clean.
+- **Milestone 5 is committed locally, not pushed.** Push when you want it live.
+- **Health**: 268 tests in 30 files pass, including the Tonal checks (`src/theory/oracle.test.ts`), a sweep of 300 questions per type (`src/exercises/questions.test.ts`), and the content checks over every shipped pack (`src/game/validation.test.ts`). `npm run build` is clean.
 - **Design**: [SPEC.md](../SPEC.md) is the source of truth: §17 milestones, §19 settled and open decisions, §20 the idea backlog. [plan.md](plan.md) is the original plan, kept for the app survey, research and sources. [setup.md](setup.md) was the one-off setup guide.
 
 ## What's built
@@ -21,8 +21,9 @@ Last updated 2026-10-24, at the end of the first working session. Read this firs
 | 3 | The tools (SPEC §14): Scale Finder (tap, type names or frequencies; grouped results, one-note-off matches, harmonics, A4 tuning, frequency table) and Scale Guide (feel and colour notes, chords with feel tags, What next? from 29 named moves, 15 looping progressions, bass frequencies). Feel words as data in `content/feel.ts`, logic in `src/tools/`. The circle of fifths in Explore. The blues spelling rule |
 | 4 | The question types (SPEC §8): spell, change, fix, echo, identify, hearQuality and fact, made from a spec and a seed, checked by pitch class, with help that fades and teaching feedback (Yours / Correct / A-B); grading for review; the keyboard's toggle mode; the question screen; Drill (SPEC §11) from Home. Dial In's seeded RNG (`game/rng.ts`, plus `shuffle`) |
 | after 4 | From phone testing: hints, tips and feedback appear below the keyboard so it never moves during a question; full help starts with the root chosen, and a hint or no help lights nothing ("nothing is ever lit without being chosen"); echo's given note starts chosen and echo never asks for an octave; wrong black keys are spelled the way the key leans |
+| 5 | Packs and Learn (SPEC §9.5): the pack schema and its checks; Foundations levels 1–10, each with a guided intro (read, see, hear, your turn); rounds of 10 (7 new, 3 going back, full help first); stars at 7, 9 and 10 right; unlocks; rounds saved answer by answer and picked up later; Learn as one list per pack; the first-time choice; the placement check; Test out; Home's Continue card; Drill narrowed to what's been learned. Naming a major chord by its root, for level 3 |
 
-Where the code is: `src/theory/` (music theory), `src/audio/` (voice, sounds, playback, loops), `src/tools/` (Scale Finder and Guide logic), `src/exercises/` (question types), `src/content/feel.ts` (feel words), `src/game/` (settings, RNG, drill), `src/storage/`, and `src/ui/` (screens, components, the shared `instrument.ts` for voices and computer keys, and pure helpers like `explore.ts` and `question.ts` with their tests). SPEC §4 has the full map.
+Where the code is: `src/theory/` (music theory), `src/audio/` (voice, sounds, playback, loops), `src/tools/` (Scale Finder and Guide logic), `src/exercises/` (question types), `src/content/` (the pack schema, `packs/foundations.ts`, and `feel.ts`), `src/game/` (settings, RNG, drill, packs, progress, rounds, placement, content checks), `src/storage/`, and `src/ui/` (screens, components, the shared `instrument.ts` for voices and computer keys, and pure helpers like `explore.ts`, `question.ts` and `intro.ts` with their tests). SPEC §4 has the full map.
 
 ## Decisions made this session
 
@@ -35,6 +36,8 @@ All in SPEC §19, settled with you as multiple-choice questions or from your pho
 - Blues blue note: ♭5, or ♯4 where ♭5 would need a double flat (E♭ blues has A).
 - Answers checked by pitch class; Drill open to everything until Learn exists; game modes open from Home, so the tabs stay for the tools.
 - From phone testing: the keyboard never moves during a question, and nothing is lit without being chosen.
+- Milestone 5, taking the recommendations: intros are guided steps; Learn is one list per pack; the placement check is two questions from each of levels 1–9, ending after two misses; a round left halfway is kept and picked up later.
+- Made along the way (say if you'd rather otherwise): the first-time choice is asked when Learn first opens, not at the app's first launch, so tool users aren't stopped; "Replay intros" is a See the intro again button on each level's page, since there's no Settings screen; passing a test out passes every earlier level too, so the next level opens; only one unfinished round is kept at a time.
 
 ## How we've been working
 
@@ -44,6 +47,8 @@ All in SPEC §19, settled with you as multiple-choice questions or from your pho
 
 ## Not checked yet
 
+- **Learn on your phone**: checked in the browser pane at 320, 375 and 414 px and on desktop (nothing overflows, and the keyboard holds still within every intro step and question), and driven end to end there: an intro, a failed and a perfect round, leaving and picking up after a reload, Test out, the placement check, the Continue card and Drill's narrowing. Not yet by hand, and not by ear: the intros' sounds and pacing are the thing to try.
+- **The intro texts** in `content/packs/foundations.ts` are a first draft, written for someone who's never touched a keyboard. They deserve a read for tone and for any term used before it's shown.
 - **The Drill fixes on your phone**: they're live and were checked on the live site in the browser pane (the keyboard stayed put through a tip, a hint and the feedback), but you haven't tried them by hand yet.
 - **Ear questions' difficulty**: whether Hear it and Play it back are too hard or too easy as a beginner's start, and whether the feedback text reads well.
 - **The feel words** in `content/feel.ts` are a first draft, hedged as "often heard as". The songs named are well-known uses of each progression ("Let It Be", "With or Without You", "Zombie", "Stand By Me", "Sweet Child O' Mine", "Oye Como Va"). They deserve a musician's read.
@@ -56,17 +61,26 @@ Checked by hand on an Android phone: the four sounds, multi-touch chords, readab
 
 - **Link back from Dial In** (setup step 7): add a Keyed In link to Dial In's Home. It's a change in the Dial In repo, so it belongs in a Dial In session.
 
-## Next: Milestone 5, packs and Learn
+## Gaps left in Milestone 5
 
-SPEC §17 and §9: the pack schema and its validation (every level's question specs checked against `exercises/catalogue.ts`), Foundations levels 1–10 with their intros (§9.2), progress saved under `keyedin.progress`, stars (70 / 85 / 95%) and unlocks, the first-launch choice (New to music / I know some basics), the placement check and Test out (§9.4), Home's Continue card, and Drill narrowing to what's been learned (§19). Rounds are 10 questions, about 70% on the level's new items.
+- **Level 10** has no question on neighbouring keys of the circle of fifths (a new `fact` kind would do it), and answers aren't checked for spelling yet (the note picker for spelling, SPEC §7 and §9.2).
+- **Placed levels' items** should go into Review so they come back soon (SPEC §9.4); that waits for Milestone 6.
+- **Links into Learn** from the Scale Guide (SPEC §14.2) aren't there yet.
+
+## Next: Milestone 6, Review
+
+SPEC §17 and §10: item tracking, FSRS scheduling through `ts-fsrs` (already agreed in SPEC §3), the daily queue, confusions, and Stats. Every answer in Learn, Drill and the placement check already has an item id (`Question.item`) and a rating (`exercises/grading.ts` `rate`), so Review starts by storing those under `keyedin.review`.
 
 Questions to settle first, as multiple choice:
-- **What an intro is**: a few guided steps (hear it, see it lit, play it yourself) before the round, or a short page of text and examples. The intros are the biggest design job in this milestone (§9.1).
-- **How Learn shows the packs and levels** on a phone: one list of levels, or chapters.
-- **What the placement check asks** and how many misses end it (§9.4 suggests about two questions per level for levels 1–9, stopping after a couple of misses).
-- **Whether a level's round can be left halfway** and picked up later, as in Dial In.
+- **Ear items** (SPEC §19, open 1): FSRS for them too, or a rolling accuracy.
+- **Which answers feed Review**: Learn and placement only, or Drill too.
+- **A day's cap**: about 20 questions or 5 minutes, and how many new items a day.
+- **Stats**: on its own screen, or as part of Review.
 
-Pieces already in place for it: question specs (`exercises/types.ts` `QuestionSpec`), the question screen (`ui/components/QuestionView.tsx`), grading (`exercises/grading.ts` `rate`), item ids for review, `game/rng.ts`, and `storage/` with `storageKey()`.
+## Next after that
+
+- Try Learn on your phone, and listen to the intros.
+- The Dial In link-back (above).
 
 ## How to work on it
 
@@ -94,7 +108,8 @@ npm run preview    # http://localhost:4174, with the service worker
 - After adding exports to `constants.ts` (or any big change), the dev server can serve a stale module and the page goes blank, though `tsc` and the build pass. Restart the dev server (stop it, then `preview_start` `dev`) and reload the page.
 - Dev and preview use ports 5174 and 4174, one above Dial In's. Service workers belong to an origin, so on a shared port one app's worker could serve the other's pages. After testing the service worker, unregister it from a page on the same port: it keeps serving its cached page even after the server stops, which is also how to reach it.
 - When the pane is hidden or a phone-sized viewport is set, screenshots come back magnified or stale and coordinate clicks land in the wrong place (a click meant for a button played a key). Measure layout with JavaScript instead (`scrollWidth` against `innerWidth`; an element's `getBoundingClientRect`), and drive the page with JavaScript: `element.click()`, setting a select's value and firing `change`, and computer-key `KeyboardEvent`s (`code: 'KeyA'` and so on) for the keyboard.
-- Fake pointer events don't work on the keyboard: `setPointerCapture` rejects a pointer id the browser doesn't know. The keyboard now ignores that failure, but computer keys are the reliable way to play it from a script.
+- Fake pointer events on the keyboard used to fail because `setPointerCapture` rejects a pointer id the browser doesn't know. The keyboard now ignores that failure, so dispatching `pointerdown` then `pointerup` on a `.key[data-note="D4"]` works (Milestone 5's checks did this throughout); computer keys work too.
+- In the dev server, `await import('/src/ui/progress.ts')` in the page returns the app's own progress store, so progress can be seeded or reset (`progressStore().update(...)`) without a reload, which would need another real Tap to start.
 - Clicking two things in one script runs both before React re-renders, so the second can act on stale state; wait between clicks.
 - Tap to start needs a real click (audio only starts from a genuine gesture): use `find` for the button's ref, then `computer` `left_click` with the ref, at the pane's own size. If the pane hasn't drawn yet, the click fails; just try again.
 - Sounds can be checked without ears: in the dev server, `await import('/src/audio/voice.ts')` in the page, render into an `OfflineAudioContext` through `createOutputBus`, and measure peak and RMS. That's how the organ was found about 4.5 dB too loud.
@@ -111,3 +126,5 @@ npm run preview    # http://localhost:4174, with the service worker
 - Content tests catch real mistakes: one found the flamenco progression listed under harmonic minor, which has no ♭VII. `guide.test.ts` checks each progression's chords are in every scale it's listed under.
 - The 300-questions-per-type sweep in `questions.test.ts` is the guard for new question types and sets: every question must accept its own right answer, must not start out already right, and keyboard questions must light nothing they haven't chosen. It caught that echo with an octave would start out solved once its root was pre-chosen.
 - UX rules that came from phone testing, now in SPEC §8: the keyboard never moves while a question is being answered (anything that comes and goes goes below it), and a key is never coloured without being chosen.
+- Anything above the keyboard that depends on saved progress can break that rule: a round saves each answer as it's checked, and "Take your time" turning into "0 right so far" moved the keyboard 21 px at 320 px wide. The round's header now counts only up to the question on screen. Measure the keyboard's top before and after checking when adding anything above it.
+- Content is checked by tests, not by hand: `validation.test.ts` runs every spec in every pack, `intro.test.ts` checks every intro fits one keyboard and that no your-turn step starts out already right. A new level only needs its data.

@@ -25,6 +25,12 @@ export interface QuestionSpec {
   /** Roots to choose from, as ASCII note names; every common root when left out. */
   readonly roots?: readonly string[];
   readonly guide?: Guide;
+  /**
+   * What naming a chord chooses between: chord types on one root (the
+   * default), or one chord type on different roots, for a level that has
+   * taught only one type so far.
+   */
+  readonly choices?: 'type' | 'root';
 }
 
 /** Something to build, name or hear. */
